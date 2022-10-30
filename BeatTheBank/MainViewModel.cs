@@ -97,18 +97,45 @@ public class MainViewModel : ViewModel
             {
                 this.speechRecognizer
                     .ListenUntilPause()
-                    .Where(x =>
+                    .SubOnMainThread(x =>
                     {
-                        if (!this.Continue.CanExecute(null))
-                            return false;
+                        Console.WriteLine("Statement: " + x);
+                        var value = x.ToLower();
 
-                        var v = x.ToLower();
-                        if (v.Contains("continue"))
-                            return true;
+                        switch (value)
+                        {
+                            case "yes":
+                            case "next":
+                            case "keep going":
+                            case "continue":
+                            case "go":
+                                if (this.Continue.CanExecute(null))
+                                    this.Continue.Execute(null);
+                                break;
 
-                        return false;
+                            case "no":
+                            case "stop":
+                                if (this.Stop.CanExecute(null))
+                                    this.Stop.Execute(null);
+                                break;
+
+                            case "try again":
+                            case "start over":
+                            case "restart":
+                                if (this.StartOver.CanExecute(null))
+                                    this.StartOver.Execute(null);
+                                break;
+
+                            default:
+                                if (value.StartsWith("my name is"))
+                                {
+                                    var newName = value.Replace("my name is", "").Trim();
+                                    if (!newName.IsEmpty())
+                                        this.Name = newName;
+                                }
+                                break;
+                        }
                     })
-                    .SubOnMainThread(_ => this.Continue!.Execute(null))
                     .DisposedBy(this.DeactivateWith);
             }
         });
