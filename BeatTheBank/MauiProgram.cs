@@ -36,6 +36,7 @@ public static class MauiProgram
 
         s.AddSingleton(AudioManager.Current);
         s.AddSingleton(TextToSpeech.Default);
+        s.AddSingleton(DeviceDisplay.Current);
         s.AddSpeechRecognition();
 
         s.AddGlobalCommandExceptionHandler(new(

@@ -10,4 +10,3 @@ global using ReactiveUI;
 global using ReactiveUI.Fody.Helpers;
 global using Prism.Navigation;
 global using Prism.Services;
-

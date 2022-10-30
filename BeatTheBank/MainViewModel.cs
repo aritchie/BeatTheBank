@@ -26,12 +26,14 @@ public class MainViewModel : ViewModel
         BaseServices services,
         ITextToSpeech textToSpeech,
         ISpeechRecognizer speechRecognizer,
+        IDeviceDisplay deviceDisplay,
         SoundEffectService sounds
     ) : base(services)
     {
         this.textToSpeech = textToSpeech;
         this.speechRecognizer = speechRecognizer;
         this.sounds = sounds;
+        deviceDisplay.KeepScreenOn = true;
 
         this.StartOver = ReactiveCommand.CreateFromTask
         (
