@@ -5,6 +5,15 @@ namespace BeatTheBank;
 
 public class MainViewModel : ViewModel
 {
+    static readonly string[] NextVaultStatements = new[]
+    {
+        "Alright, let's open it up",
+        "Taking a chance and going for it",
+        "Let's see what's in the next vault",
+        "Let's do this",
+        "Come on big money!"
+    };
+
     readonly ITextToSpeech textToSpeech;
     readonly ISpeechRecognizer speechRecognizer;
     readonly SoundEffectService sounds;
@@ -28,6 +37,7 @@ public class MainViewModel : ViewModel
         (
             async () =>
             {
+                this.Status = PlayState.InProgress;
                 this.Vault = 0;
                 this.Amount = 0;
                 this.WinAmount = 0;
@@ -98,12 +108,32 @@ public class MainViewModel : ViewModel
 
                         return false;
                     })
-                    .SubOnMainThread(_ => this.Continue!.Execute(null));
+                    .SubOnMainThread(_ => this.Continue!.Execute(null))
+                    .DisposedBy(this.DeactivateWith);
             }
         });
+
+        this.PlaySound = ReactiveCommand.Create<string>(x =>
+        {
+            if (x == "lose")
+                this.sounds.PlayAlarm();
+            else
+                this.sounds.PlayJackpot();
+        });
+
+        this.WhenAnyValue(x => x.UseSpeechRecognition)
+            .Skip(1)
+            .Subscribe(use =>
+            {
+                if (!use)
+                    this.Deactivate();
+                else
+                    this.Speech.Execute(null);
+            });
     }
 
 
+    [Reactive] public bool UseSpeechRecognition { get; set; }
     [Reactive] public string Name { get; set; }
     [Reactive] public int Vault { get; private set; }
     [Reactive] public int StopVault { get; private set; }
@@ -114,18 +144,15 @@ public class MainViewModel : ViewModel
     public ICommand Continue { get; }
     public ICommand Speech { get; }
     public ICommand Stop { get; }
-
-
-    public override void OnNavigatedTo(INavigationParameters parameters)
-    {
-        base.OnNavigatedTo(parameters);
-        //this.Speech.Execute(null);
-    }
+    public ICommand PlaySound { get; }
 
 
     async Task NextRound()
     {
-        await this.Speak(1000, "Alright, let's open it up.");
+        var index = this.randomizer.Next(0, NextVaultStatements.Length);
+        var announce = NextVaultStatements[index];
+        await this.Speak(1000, announce);
+
         if (await this.TryNextRound())
             await this.textToSpeech.SpeakAsync("Do you wish to continue?");
     }
@@ -154,6 +181,7 @@ public class MainViewModel : ViewModel
                     this.WinAmount = 0;
                     this.Status = PlayState.Lose;
                 }
+                await this.Speak(500, $"Vault {this.Vault}");
                 this.sounds.PlayAlarm();
             }
         }

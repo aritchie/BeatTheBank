@@ -12,9 +12,15 @@
         <Label Text="{Binding StopVault, StringFormat='Stop Vault: {0}'}" />
         <Label Text="{Binding WinAmount, StringFormat='Stop Amount: ${0}'}" />
         <Label Text="{Binding Status, StringFormat='Status: {0}'}" />
+
+        <Label Text="Speech Recognition" />
+        <CheckBox IsChecked="{Binding UseSpeechRecognition}" />
         <Button Text="Start" Command="{Binding StartOver}" />
         <Button Text="Continue" Command="{Binding Continue}" />
         <Button Text="Stop" Command="{Binding Stop}" />
+
+        <Button Text="Jackpot Sound" Command="{Binding PlaySound}" CommandParameter="win" />
+        <Button Text="Lose Sound" Command="{Binding PlaySound}" CommandParameter="lose" />
     </VerticalStackLayout>
 </ContentPage>
 
