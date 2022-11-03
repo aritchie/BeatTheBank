@@ -6,6 +6,11 @@ and if you aren't lucky at all - you hit the alarm and get nothing.
 
 ## The Stack
 
-* [.NET MAUI](https://github.com/dotnet/maui)
-* [Shiny Speech Recognizer](https://shinylib.net)
-* [Shiny Framework](https://github.com/shinyorg/framework)
+|Library|Description|
+|-------|-----------|
+|[.NET MAUI](https://github.com/dotnet/maui)|Microsoft Application User Interface Library|
+|[Shiny Speech Recognizer](https://shinylib.net)|Shiny is a collection of libraries that make working with mobile device hardware & background processes easy|
+|[Shiny Framework](https://github.com/shinyorg/framework)|Brings together the best of [Prism](https://prismlibrary.com/) & [ReactiveUI](https://reactiveui.net)
+|[MAUI Audio Plugin](https://github.com/jfversluis/Plugin.Maui.Audio)|Easy to use Audio plugin for .NET MAUI|
+|[MAUI Community Toolkit](https://github.com/CommunityToolkit/Maui)|The .NET MAUI Community Toolkit is a collection of common elements for development with .NET MAUI that developers tend to replicate across multiple apps. It simplifies and demonstrates common developer tasks when building apps with .NET MAUI|
+|[DryIoc](https://github.com/dadhi/DryIoc)|A fast, small, full-featured IoC Container for .NET|
