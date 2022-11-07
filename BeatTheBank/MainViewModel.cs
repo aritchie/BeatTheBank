@@ -33,7 +33,9 @@ public class MainViewModel : ViewModel
         this.textToSpeech = textToSpeech;
         this.speechRecognizer = speechRecognizer;
         this.sounds = sounds;
+#if !ANDROID
         deviceDisplay.KeepScreenOn = true;
+#endif
 
         this.StartOver = ReactiveCommand.CreateFromTask
         (
