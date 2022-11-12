@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:beatthebank="clr-namespace:BeatTheBank"
              x:DataType="beatthebank:MainViewModel"
-             x:Class="BeatTheBank.MainPage">
+             x:Class="BeatTheBank.MainPage"
+             Title="Beat The Bank">
 
     <VerticalStackLayout>
         <Entry Text="{Binding Name}" Placeholder="Name" />

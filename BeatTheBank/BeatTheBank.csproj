@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
+		<!--<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>-->
+		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>BeatTheBank</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -22,7 +23,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<ShinyVersion>3.0.0-alpha-0391</ShinyVersion>
+		<ShinyVersion>3.0.0-alpha-0399</ShinyVersion>
 	</PropertyGroup>
 
 
@@ -38,9 +39,9 @@
 	<ItemGroup>
 		<PackageReference Include="ReactiveUI.Fody" Version="18.3.1" />
 		<PackageReference Include="Prism.DryIoc.Maui" Version="8.1.273-pre" />
-		<PackageReference Include="Shiny.Framework" Version="3.0.0-alpha-0035" />
+		<PackageReference Include="Shiny.Framework" Version="3.0.0-alpha-0040" />
 		<PackageReference Include="Shiny.SpeechRecognition" Version="$(ShinyVersion)" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="1.3.0" />
-		<PackageReference Include="Plugin.Maui.Audio" Version="0.1.0-preview1" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="3.0.0" />
+		<PackageReference Include="Plugin.Maui.Audio" Version="0.1.0-preview2" />
 	</ItemGroup>
 </Project>
