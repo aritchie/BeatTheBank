@@ -2,11 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:beatthebank="clr-namespace:BeatTheBank"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:DataType="beatthebank:MainViewModel"
              x:Class="BeatTheBank.MainPage"
              Title="Beat The Bank">
 
-    <VerticalStackLayout>
+    <VerticalStackLayout Spacing="10">
         <Entry Text="{Binding Name}" Placeholder="Name" />
         <Label Text="{Binding Vault, StringFormat='Vault: {0}'}" />
         <Label Text="{Binding Amount, StringFormat='Current Amount: ${0}'}" />
@@ -21,6 +22,18 @@
 
         <Button Text="Jackpot Sound" Command="{Binding PlaySoundCommand}" CommandParameter="win" />
         <Button Text="Lose Sound" Command="{Binding PlaySoundCommand}" CommandParameter="lose" />
+        
+        <toolkit:Expander>
+            <toolkit:Expander.Header>
+                <Label Text="OUTCOME"
+                       FontAttributes="Bold"
+                       FontSize="Medium" />
+            </toolkit:Expander.Header>
+            <VerticalStackLayout Padding="10">
+                <Label Text="{Binding Rounds, StringFormat='Rounds: {0}'}" />
+                <Label Text="{Binding IsJackpot, StringFormat='Jackpot Game: {0}'}" />
+            </VerticalStackLayout>
+        </toolkit:Expander>
     </VerticalStackLayout>
 </ContentPage>
 

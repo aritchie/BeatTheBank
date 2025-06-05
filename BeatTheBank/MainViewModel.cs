@@ -27,8 +27,8 @@ public partial class MainViewModel(
     };
 
     readonly Random randomizer = new();
-    int rounds = 0;
-    bool isJackpot = false;
+    [ObservableProperty] int rounds = 0;
+    [ObservableProperty] bool isJackpot = false;
 
 
     void NotifyExecuteChanged()
@@ -73,10 +73,10 @@ public partial class MainViewModel(
         this.Amount = 0;
         this.WinAmount = 0;
         this.StopVault = 0;
-        this.rounds = this.randomizer.Next(4, 15);
-        this.isJackpot = this.randomizer.Next(1, 40) == 39; // 1 in 40 chance
+        this.Rounds = this.randomizer.Next(4, 15);
+        this.IsJackpot = this.randomizer.Next(1, 40) == 39; // 1 in 40 chance
         
-        logger.LogDebug($"Rounds: {this.rounds} - Jackpot: {this.isJackpot}");
+        logger.LogDebug($"Rounds: {this.Rounds} - Jackpot: {this.IsJackpot}");
         
         await this.Speak(1000, $"Good Luck {this.Name}.  Let's play!");
         await this.NextRound();
@@ -85,7 +85,7 @@ public partial class MainViewModel(
 
     [RelayCommand(CanExecute = nameof(CanContinue))]
     Task Continue() => this.NextRound();
-    bool CanContinue() => this.Vault < this.rounds && this.Status == PlayState.InProgress;
+    bool CanContinue() => this.Vault < this.Rounds && this.Status == PlayState.InProgress;
 
     const string ENABLE = "Enable Speech Recognizer";
     const string DISABLE = "Disable Speech Recognizer";
@@ -112,7 +112,7 @@ public partial class MainViewModel(
             await speechRecognizer.StartListenAsync(new SpeechToTextOptions
             {
                 Culture = new CultureInfo("en-US"),
-                ShouldReportPartialResults = true
+                ShouldReportPartialResults = false
             });
             this.SpeechText = DISABLE;
         }
@@ -216,9 +216,9 @@ public partial class MainViewModel(
         var next = false;
         this.Vault++;
 
-        if (this.Vault == this.rounds)
+        if (this.Vault == this.Rounds)
         {
-            if (this.isJackpot)
+            if (this.IsJackpot)
             {
                 if (this.Status != PlayState.WinStop)
                 {
