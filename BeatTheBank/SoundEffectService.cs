@@ -1,5 +1,4 @@
-﻿using System;
-using Plugin.Maui.Audio;
+﻿using Plugin.Maui.Audio;
 
 namespace BeatTheBank;
 
@@ -9,11 +8,11 @@ public class SoundEffectService
     readonly IAudioManager audioManager = AudioManager.Current;
     readonly Dictionary<string, IAudioPlayer> sounds = new();
 
-#if ANDROID
-    readonly AndroidPlatform platform;
-    public SoundEffectService(AndroidPlatform platform) => this.platform = platform;
-
-#endif
+// #if ANDROID
+//     readonly AndroidPlatform platform;
+//     public SoundEffectService(AndroidPlatform platform) => this.platform = platform;
+//
+// #endif
 
     public void PlayAlarm() => this.Play("alarm.wav");
     public void PlayJackpot() => this.Play("jackpot.wav");
@@ -40,7 +39,7 @@ public class SoundEffectService
         var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, "Contents", "Resources", fileName);
         return File.OpenRead(fullPath);
 #else
-        return this.platform.AppContext.Assets!.Open(fileName);
+        return null;  //this.platform.AppContext.Assets!.Open(fileName);
 #endif
     }
 }

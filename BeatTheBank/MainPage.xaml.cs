@@ -3,10 +3,9 @@
 
 public partial class MainPage : ContentPage
 {
-	public MainPage(MainViewModel viewModel)
+	public MainPage()
 	{
 		this.InitializeComponent();
-		this.BindingContext = viewModel;
 	}
 }
 

@@ -1,9 +1,20 @@
-﻿using Shiny.SpeechRecognition;
+﻿using System.ComponentModel;
+using System.Reactive;
+using CommunityToolkit.Maui.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace BeatTheBank;
 
 
-public class MainViewModel : ViewModel
+[ShellMap<MainPage>(registerRoute: false)]
+public partial class MainViewModel(
+    ILogger<MainViewModel> logger,
+    ITextToSpeech textToSpeech,
+    ISpeechToText speechRecognizer,
+    IDeviceDisplay deviceDisplay,
+    SoundEffectService sounds
+) : ObservableObject, IPageLifecycleAware
 {
     static readonly string[] NextVaultStatements = new[]
     {
@@ -14,170 +25,181 @@ public class MainViewModel : ViewModel
         "Come on big money!"
     };
 
-    readonly ITextToSpeech textToSpeech;
-    readonly ISpeechRecognizer speechRecognizer;
-    readonly SoundEffectService sounds;
     readonly Random randomizer = new();
     int rounds = 0;
     bool isJackpot = false;
 
 
-    public MainViewModel(
-        BaseServices services,
-        ITextToSpeech textToSpeech,
-        ISpeechRecognizer speechRecognizer,
-        IDeviceDisplay deviceDisplay,
-        SoundEffectService sounds
-    ) : base(services)
+    void NotifyExecuteChanged()
     {
-        this.textToSpeech = textToSpeech;
-        this.speechRecognizer = speechRecognizer;
-        this.sounds = sounds;
-#if !ANDROID
-        deviceDisplay.KeepScreenOn = true;
-#endif
-
-        this.StartOver = ReactiveCommand.CreateFromTask
-        (
-            async () =>
-            {
-                this.Status = PlayState.InProgress;
-                this.Vault = 0;
-                this.Amount = 0;
-                this.WinAmount = 0;
-                this.StopVault = 0;
-                this.rounds = this.randomizer.Next(4, 15);
-                this.isJackpot = this.randomizer.Next(1, 40) == 39; // 1 in 40 chance
-
-                Console.WriteLine($"Rounds: {this.rounds} - Jackpot: {this.isJackpot}");
-
-                await this.Speak(1000, $"Good Luck {this.Name}.  Let's play!");
-                await this.NextRound();
-            },
-            this.WhenAny(
-                x => x.Name,
-                x => !x.GetValue().IsEmpty()
-            )
-        );
-
-        this.Continue = ReactiveCommand.CreateFromTask(
-            async () => await this.NextRound(),
-            this.WhenAny(
-                x => x.Vault,
-                x => x.Status,
-                (v, st) => v.GetValue() < this.rounds && st.GetValue() == PlayState.InProgress
-            )
-        );
-
-        this.Stop = ReactiveCommand.CreateFromTask
-        (
-            async () =>
-            {
-                this.Status = PlayState.WinStop;
-                this.WinAmount = this.Amount;
-                this.StopVault = this.Vault;
-
-                await this.Speak(
-                    500,
-                    $"Good Job {this.Name}",
-                    $"You won {this.Amount} dollars",
-                    "Let's see what you could have won"
-                );
-
-                while (await this.TryNextRound())
-                    await Task.Delay(500);
-            },
-            this.WhenAny(
-                x => x.Vault,
-                x => x.Status,
-                (v, st) => v.GetValue() > 0 && st.GetValue() == PlayState.InProgress
-            )
-        );
-
-        this.Speech = ReactiveCommand.CreateFromTask(async () =>
-        {
-            var result = await this.speechRecognizer.RequestAccess();
-            if (result == AccessState.Available)
-            {
-                this.speechRecognizer
-                    .ListenUntilPause()
-                    .SubOnMainThread(x =>
-                    {
-                        Console.WriteLine("Statement: " + x);
-                        var value = x.ToLower();
-
-                        switch (value)
-                        {
-                            case "yes":
-                            case "next":
-                            case "keep going":
-                            case "continue":
-                            case "go":
-                                if (this.Continue.CanExecute(null))
-                                    this.Continue.Execute(null);
-                                break;
-
-                            case "no":
-                            case "stop":
-                                if (this.Stop.CanExecute(null))
-                                    this.Stop.Execute(null);
-                                break;
-
-                            case "try again":
-                            case "start over":
-                            case "restart":
-                                if (this.StartOver.CanExecute(null))
-                                    this.StartOver.Execute(null);
-                                break;
-
-                            default:
-                                if (value.StartsWith("my name is"))
-                                {
-                                    var newName = value.Replace("my name is", "").Trim();
-                                    if (!newName.IsEmpty())
-                                        this.Name = newName;
-                                }
-                                break;
-                        }
-                    })
-                    .DisposedBy(this.DeactivateWith);
-            }
-        });
-
-        this.PlaySound = ReactiveCommand.Create<string>(x =>
-        {
-            if (x == "lose")
-                this.sounds.PlayAlarm();
-            else
-                this.sounds.PlayJackpot();
-        });
-
-        this.WhenAnyValue(x => x.UseSpeechRecognition)
-            .Skip(1)
-            .Subscribe(use =>
-            {
-                if (!use)
-                    this.Deactivate();
-                else
-                    this.Speech.Execute(null);
-            });
+        this.StartOverCommand.NotifyCanExecuteChanged();
+        this.ContinueCommand.NotifyCanExecuteChanged();
+        this.StopCommand.NotifyCanExecuteChanged();
     }
 
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        this.NotifyExecuteChanged();
+    }
 
-    [Reactive] public bool UseSpeechRecognition { get; set; }
-    [Reactive] public string Name { get; set; }
-    [Reactive] public int Vault { get; private set; }
-    [Reactive] public int StopVault { get; private set; }
-    [Reactive] public int WinAmount { get; private set; }
-    [Reactive] public int Amount { get; private set; }
-    [Reactive] public PlayState Status { get; private set; }
-    public ICommand StartOver { get; }
-    public ICommand Continue { get; }
-    public ICommand Speech { get; }
-    public ICommand Stop { get; }
-    public ICommand PlaySound { get; }
+    public void OnAppearing()
+    {
+        deviceDisplay.KeepScreenOn = true;
+        this.NotifyExecuteChanged();
+        // this.WhenAnyValue(x => x.UseSpeechRecognition)
+        //     .Skip(1)
+        //     .Subscribe(use =>
+        //     {
+        //         if (!use)
+        //             this.Deactivate();
+        //         else
+        //             this.Speech.Execute(null);
+        //     });
+    }
+
+    public void OnDisappearing() {}
+    
+    [ObservableProperty] bool useSpeechRecognition;
+    [ObservableProperty] string name;
+    [ObservableProperty] int vault;
+    [ObservableProperty] int stopVault;
+    [ObservableProperty] int winAmount;
+    [ObservableProperty] int amount;
+    [ObservableProperty] PlayState status;
 
 
+    [RelayCommand(CanExecute = nameof(CanStartOver))]
+    async Task StartOver()
+    {
+        this.Status = PlayState.InProgress;
+        this.Vault = 0;
+        this.Amount = 0;
+        this.WinAmount = 0;
+        this.StopVault = 0;
+        this.rounds = this.randomizer.Next(4, 15);
+        this.isJackpot = this.randomizer.Next(1, 40) == 39; // 1 in 40 chance
+        
+        logger.LogDebug($"Rounds: {this.rounds} - Jackpot: {this.isJackpot}");
+        
+        await this.Speak(1000, $"Good Luck {this.Name}.  Let's play!");
+        await this.NextRound();
+    }
+    bool CanStartOver() => !String.IsNullOrWhiteSpace(this.Name);
+
+    [RelayCommand(CanExecute = nameof(CanContinue))]
+    Task Continue() => this.NextRound();
+    bool CanContinue() => this.Vault < this.rounds && this.Status == PlayState.InProgress;
+
+    [RelayCommand]
+    async Task Speech()
+    {
+        var granted = await speechRecognizer.RequestPermissions();
+        
+        
+    //     speechToText.RecognitionResultUpdated += OnRecognitionTextUpdated;
+    //     speechToText.RecognitionResultCompleted += OnRecognitionTextCompleted;
+    //     await speechToText.StartListenAsync(CultureInfo.CurrentCulture, CancellationToken.None);
+    // }
+    //
+    // async Task StopListening(CancellationToken cancellationToken)
+    // {
+    //     await speechToText.StopListenAsync(CancellationToken.None);
+    //     speechToText.RecognitionResultUpdated -= OnRecognitionTextUpdated;
+    //     speechToText.RecognitionResultCompleted -= OnRecognitionTextCompleted;
+        // var recognitionResult = await speechToText.ListenAsync(
+        //     CultureInfo.GetCultureInfo(Language),
+        //     new Progress<string>(partialText =>
+        //     {
+        //         RecognitionText += partialText + " ";
+        //     }), cancellationToken);
+        //
+        // if (recognitionResult.IsSuccessful)
+        // {
+        //     RecognitionText = recognitionResult.Text;
+        // }
+        // else
+        // {
+        //     await Toast.Make(recognitionResult.Exception?.Message ?? "Unable to recognize speech").Show(CancellationToken.None);
+        // }
+        // var result = await this.speechRecognizer.RequestAccess();
+        // if (result == AccessState.Available)
+        // {
+        //     this.speechRecognizer
+        //         .ListenUntilPause()
+        //         .SubOnMainThread(x =>
+        //         {
+        //             Console.WriteLine("Statement: " + x);
+        //             var value = x.ToLower();
+        //
+        //             switch (value)
+        //             {
+        //                 case "yes":
+        //                 case "next":
+        //                 case "keep going":
+        //                 case "continue":
+        //                 case "go":
+        //                     if (this.Continue.CanExecute(null))
+        //                         this.Continue.Execute(null);
+        //                     break;
+        //
+        //                 case "no":
+        //                 case "stop":
+        //                     if (this.Stop.CanExecute(null))
+        //                         this.Stop.Execute(null);
+        //                     break;
+        //
+        //                 case "try again":
+        //                 case "start over":
+        //                 case "restart":
+        //                     if (this.StartOver.CanExecute(null))
+        //                         this.StartOver.Execute(null);
+        //                     break;
+        //
+        //                 default:
+        //                     if (value.StartsWith("my name is"))
+        //                     {
+        //                         var newName = value.Replace("my name is", "").Trim();
+        //                         if (!newName.IsEmpty())
+        //                             this.Name = newName;
+        //                     }
+        //                     break;
+        //             }
+        //         })
+        //         .DisposedBy(this.DeactivateWith);
+        // }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanStop))]
+    async Task Stop()
+    {
+        this.Status = PlayState.WinStop;
+        this.WinAmount = this.Amount;
+        this.StopVault = this.Vault;
+        
+        await this.Speak(
+            500,
+            $"Good Job {this.Name}",
+            $"You won {this.Amount} dollars",
+            "Let's see what you could have won"
+        );
+        
+        while (await this.TryNextRound() && this.Status == PlayState.WinStop)
+            await Task.Delay(500);
+    }
+    bool CanStop() => this.Vault > 0 && this.Status == PlayState.InProgress;
+
+    
+    [RelayCommand]
+    void PlaySound(string sound)
+    {
+        if (sound == "lose")
+            sounds.PlayAlarm();
+        else
+            sounds.PlayJackpot();
+    }
+
+    
     async Task NextRound()
     {
         var index = this.randomizer.Next(0, NextVaultStatements.Length);
@@ -185,7 +207,7 @@ public class MainViewModel : ViewModel
         await this.Speak(1000, announce);
 
         if (await this.TryNextRound())
-            await this.textToSpeech.SpeakAsync("Do you wish to continue?");
+            await textToSpeech.SpeakAsync("Do you wish to continue?");
     }
 
 
@@ -203,7 +225,7 @@ public class MainViewModel : ViewModel
                     this.Status = PlayState.Win;
                     this.WinAmount = 1000000;
                 }
-                this.sounds.PlayJackpot();
+                sounds.PlayJackpot();
             }
             else
             {
@@ -213,7 +235,7 @@ public class MainViewModel : ViewModel
                     this.Status = PlayState.Lose;
                 }
                 await this.Speak(500, $"Vault {this.Vault}");
-                this.sounds.PlayAlarm();
+                sounds.PlayAlarm();
             }
         }
         else
@@ -257,7 +279,7 @@ public class MainViewModel : ViewModel
     {
         foreach (var s in sentences)
         {
-            await this.textToSpeech.SpeakAsync(s);
+            await textToSpeech.SpeakAsync(s);
             await Task.Delay(pauseBetween);
         }
     }

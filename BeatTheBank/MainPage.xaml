@@ -16,12 +16,12 @@
 
         <Label Text="Speech Recognition" />
         <CheckBox IsChecked="{Binding UseSpeechRecognition}" />
-        <Button Text="Start" Command="{Binding StartOver}" />
-        <Button Text="Continue" Command="{Binding Continue}" />
-        <Button Text="Stop" Command="{Binding Stop}" />
+        <Button Text="Start" Command="{Binding StartOverCommand}" />
+        <Button Text="Continue" Command="{Binding ContinueCommand}" />
+        <Button Text="Stop" Command="{Binding StopCommand}" />
 
-        <Button Text="Jackpot Sound" Command="{Binding PlaySound}" CommandParameter="win" />
-        <Button Text="Lose Sound" Command="{Binding PlaySound}" CommandParameter="lose" />
+        <Button Text="Jackpot Sound" Command="{Binding PlaySoundCommand}" CommandParameter="win" />
+        <Button Text="Lose Sound" Command="{Binding PlaySoundCommand}" CommandParameter="lose" />
     </VerticalStackLayout>
 </ContentPage>
 
