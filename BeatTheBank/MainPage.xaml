@@ -14,8 +14,7 @@
         <Label Text="{Binding WinAmount, StringFormat='Stop Amount: ${0}'}" />
         <Label Text="{Binding Status, StringFormat='Status: {0}'}" />
 
-        <Label Text="Speech Recognition" />
-        <CheckBox IsChecked="{Binding UseSpeechRecognition}" />
+        <Button Text="{Binding SpeechText}" Command="{Binding SpeechCommand}" />
         <Button Text="Start" Command="{Binding StartOverCommand}" />
         <Button Text="Continue" Command="{Binding ContinueCommand}" />
         <Button Text="Stop" Command="{Binding StopCommand}" />

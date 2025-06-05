@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Reactive;
+using System.Globalization;
 using CommunityToolkit.Maui.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +10,7 @@ namespace BeatTheBank;
 [ShellMap<MainPage>(registerRoute: false)]
 public partial class MainViewModel(
     ILogger<MainViewModel> logger,
+    INavigator navigator,
     ITextToSpeech textToSpeech,
     ISpeechToText speechRecognizer,
     IDeviceDisplay deviceDisplay,
@@ -46,21 +47,16 @@ public partial class MainViewModel(
     public void OnAppearing()
     {
         deviceDisplay.KeepScreenOn = true;
+        speechRecognizer.RecognitionResultCompleted += this.SpeechRecognizerOnRecognitionResultCompleted;
         this.NotifyExecuteChanged();
-        // this.WhenAnyValue(x => x.UseSpeechRecognition)
-        //     .Skip(1)
-        //     .Subscribe(use =>
-        //     {
-        //         if (!use)
-        //             this.Deactivate();
-        //         else
-        //             this.Speech.Execute(null);
-        //     });
     }
 
-    public void OnDisappearing() {}
+    public void OnDisappearing()
+    {
+        speechRecognizer.RecognitionResultCompleted -= this.SpeechRecognizerOnRecognitionResultCompleted;
+    }
     
-    [ObservableProperty] bool useSpeechRecognition;
+    [ObservableProperty] string speechText = "Start Speech Recognizer";
     [ObservableProperty] string name;
     [ObservableProperty] int vault;
     [ObservableProperty] int stopVault;
@@ -91,84 +87,87 @@ public partial class MainViewModel(
     Task Continue() => this.NextRound();
     bool CanContinue() => this.Vault < this.rounds && this.Status == PlayState.InProgress;
 
+    const string ENABLE = "Enable Speech Recognizer";
+    const string DISABLE = "Disable Speech Recognizer";
+    
     [RelayCommand]
     async Task Speech()
     {
-        var granted = await speechRecognizer.RequestPermissions();
-        
-        
-    //     speechToText.RecognitionResultUpdated += OnRecognitionTextUpdated;
-    //     speechToText.RecognitionResultCompleted += OnRecognitionTextCompleted;
-    //     await speechToText.StartListenAsync(CultureInfo.CurrentCulture, CancellationToken.None);
-    // }
-    //
-    // async Task StopListening(CancellationToken cancellationToken)
-    // {
-    //     await speechToText.StopListenAsync(CancellationToken.None);
-    //     speechToText.RecognitionResultUpdated -= OnRecognitionTextUpdated;
-    //     speechToText.RecognitionResultCompleted -= OnRecognitionTextCompleted;
-        // var recognitionResult = await speechToText.ListenAsync(
-        //     CultureInfo.GetCultureInfo(Language),
-        //     new Progress<string>(partialText =>
-        //     {
-        //         RecognitionText += partialText + " ";
-        //     }), cancellationToken);
-        //
-        // if (recognitionResult.IsSuccessful)
-        // {
-        //     RecognitionText = recognitionResult.Text;
-        // }
-        // else
-        // {
-        //     await Toast.Make(recognitionResult.Exception?.Message ?? "Unable to recognize speech").Show(CancellationToken.None);
-        // }
-        // var result = await this.speechRecognizer.RequestAccess();
-        // if (result == AccessState.Available)
-        // {
-        //     this.speechRecognizer
-        //         .ListenUntilPause()
-        //         .SubOnMainThread(x =>
-        //         {
-        //             Console.WriteLine("Statement: " + x);
-        //             var value = x.ToLower();
-        //
-        //             switch (value)
-        //             {
-        //                 case "yes":
-        //                 case "next":
-        //                 case "keep going":
-        //                 case "continue":
-        //                 case "go":
-        //                     if (this.Continue.CanExecute(null))
-        //                         this.Continue.Execute(null);
-        //                     break;
-        //
-        //                 case "no":
-        //                 case "stop":
-        //                     if (this.Stop.CanExecute(null))
-        //                         this.Stop.Execute(null);
-        //                     break;
-        //
-        //                 case "try again":
-        //                 case "start over":
-        //                 case "restart":
-        //                     if (this.StartOver.CanExecute(null))
-        //                         this.StartOver.Execute(null);
-        //                     break;
-        //
-        //                 default:
-        //                     if (value.StartsWith("my name is"))
-        //                     {
-        //                         var newName = value.Replace("my name is", "").Trim();
-        //                         if (!newName.IsEmpty())
-        //                             this.Name = newName;
-        //                     }
-        //                     break;
-        //             }
-        //         })
-        //         .DisposedBy(this.DeactivateWith);
-        // }
+        try
+        {
+            if (speechRecognizer.CurrentState == SpeechToTextState.Listening)
+            {
+                await speechRecognizer.StopListenAsync();
+                this.SpeechText = ENABLE;
+                return;
+            }
+
+            var granted = await speechRecognizer.RequestPermissions();
+            if (!granted)
+            {
+                await navigator.Alert("Speech", "Permission denied");
+                return;
+            }
+
+            await speechRecognizer.StartListenAsync(new SpeechToTextOptions
+            {
+                Culture = new CultureInfo("en-US"),
+                ShouldReportPartialResults = true
+            });
+            this.SpeechText = DISABLE;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "There is an issue with speech recognition");
+            await navigator.Alert("Error", "Something is wrong with speech recognition");
+        }
     }
+    
+
+    void SpeechRecognizerOnRecognitionResultCompleted(object? sender, SpeechToTextRecognitionResultCompletedEventArgs e)
+    {
+        logger.LogInformation("Incoming Speech Result");
+        if (!e.RecognitionResult.IsSuccessful)
+            return;
+
+        var txt = e.RecognitionResult.Text?.ToLower() ?? String.Empty;
+        logger.LogInformation("Speech Result: {txt}", txt);
+        
+        switch (txt)
+        {
+            case "yes":
+            case "next":
+            case "keep going":
+            case "continue":
+            case "go":
+                if (this.ContinueCommand.CanExecute(null))
+                    this.ContinueCommand.Execute(null);
+                break;
+            
+            case "no":
+            case "stop":
+                if (this.StopCommand.CanExecute(null))
+                    this.StopCommand.Execute(null);
+                break;
+            
+            case "try again":
+            case "start over":
+            case "restart":
+                if (this.StartOverCommand.CanExecute(null))
+                    this.StartOverCommand.Execute(null);
+                break;
+            
+            default:
+                if (txt.StartsWith("my name is"))
+                {
+                    var newName = txt.Replace("my name is", "").Trim();
+                    if (!String.IsNullOrWhiteSpace(newName))
+                        this.Name = newName;
+                }
+                break;
+        }
+    }
+    
 
     [RelayCommand(CanExecute = nameof(CanStop))]
     async Task Stop()
@@ -184,7 +183,8 @@ public partial class MainViewModel(
             "Let's see what you could have won"
         );
         
-        while (await this.TryNextRound() && this.Status == PlayState.WinStop)
+        // TODO: this keeps going which screws up starting a new game
+        while (await this.TryNextRound())
             await Task.Delay(500);
     }
     bool CanStop() => this.Vault > 0 && this.Status == PlayState.InProgress;
