@@ -1,9 +1,9 @@
 ﻿namespace BeatTheBank;
 
 
-public partial class MainPage : ContentPage
+public partial class GamePage : ContentPage
 {
-	public MainPage()
+	public GamePage()
 	{
 		this.InitializeComponent();
 	}

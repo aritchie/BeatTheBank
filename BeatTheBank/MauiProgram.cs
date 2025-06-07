@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui;
+﻿using BeatTheBank.Services;
+using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Media;
 using Plugin.Maui.Audio;
 
@@ -24,6 +25,9 @@ public static class MauiProgram
         builder.Services.AddSingleton(TextToSpeech.Default);
         builder.Services.AddSingleton(SpeechToText.Default);
         builder.Services.AddSingleton(DeviceDisplay.Current);
+
+        builder.Services.AddSingleton<AppSqliteConnection>();
+        // builder.Services.AddSingleton<GameContext>();
         builder.Services.AddSingleton<SoundEffectService>();
 
         return builder.Build();

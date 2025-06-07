@@ -6,7 +6,7 @@
        x:Class="BeatTheBank.AppShell"
        x:DataType="local:AppShell">
     <ShellContent
-        Title="Wonderland"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="BeatTheBank"
+        ContentTemplate="{DataTemplate local:PlayerListPage}"
+        Route="PlayerListPage" />
 </Shell>

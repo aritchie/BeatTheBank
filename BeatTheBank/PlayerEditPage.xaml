@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:beatTheBank="clr-namespace:BeatTheBank"
+             x:DataType="beatTheBank:PlayerEditViewModel"
+             x:Class="BeatTheBank.PlayerEditPage"
+             Title="{Binding Title}">
+    <ContentPage.Content>
+        <VerticalStackLayout>
+            <Label Text="Name" />
+            <Entry Text="{Binding Name}" />
+            <Button Text="Save Player" 
+                    Command="{Binding SaveCommand}"/>
+            
+            <Button Text="Delete Player"
+                    Command="{Binding DeleteCommand}"
+                    IsVisible="{Binding CanDelete}"/>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>
