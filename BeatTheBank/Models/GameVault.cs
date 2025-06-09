@@ -10,5 +10,4 @@ public class GameVault
     public Guid GameId { get; set; }
     public int DollarAmount { get; set; }
     public int Vault { get; set; }
-    public bool PlayerStopped { get; set; }
 }

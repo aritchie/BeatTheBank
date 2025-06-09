@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using BeatTheBank.Models;
 using CommunityToolkit.Maui.Media;
 
 
@@ -14,7 +15,7 @@ public partial class GameViewModel(
     ISpeechToText speechRecognizer,
     IDeviceDisplay deviceDisplay,
     SoundEffectService sounds
-) : ObservableObject, IPageLifecycleAware
+) : ObservableObject, IPageLifecycleAware, INavigationConfirmation
 {
     static readonly string[] NextVaultStatements = new[]
     {
@@ -62,6 +63,7 @@ public partial class GameViewModel(
     [ObservableProperty] int winAmount;
     [ObservableProperty] int amount;
     [ObservableProperty] PlayState status;
+    [ObservableProperty] Player player;
 
 
     [RelayCommand(CanExecute = nameof(CanStartOver))]
@@ -281,6 +283,12 @@ public partial class GameViewModel(
             await textToSpeech.SpeakAsync(s);
             await Task.Delay(pauseBetween);
         }
+    }
+
+    public async Task<bool> CanNavigate()
+    {
+        // confirm if in the middle of a game
+        return true;
     }
 }
 
