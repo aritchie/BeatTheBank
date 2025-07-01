@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 using BeatTheBank.Models;
+using BeatTheBank.Services;
 using CommunityToolkit.Maui.Media;
 
 
@@ -10,6 +11,7 @@ namespace BeatTheBank;
 [ShellMap<GamePage>]
 public partial class GameViewModel(
     ILogger<GameViewModel> logger,
+    GameContext gameContext,
     INavigator navigator,
     ITextToSpeech textToSpeech,
     ISpeechToText speechRecognizer,
@@ -55,38 +57,35 @@ public partial class GameViewModel(
     {
         speechRecognizer.RecognitionResultCompleted -= this.SpeechRecognizerOnRecognitionResultCompleted;
     }
+
     
     [ObservableProperty] string speechText = "Start Speech Recognizer";
-    [ObservableProperty] string name;
-    [ObservableProperty] int vault;
-    [ObservableProperty] int stopVault;
-    [ObservableProperty] int winAmount;
-    [ObservableProperty] int amount;
-    [ObservableProperty] PlayState status;
+    // [ObservableProperty] int vault;
+    // [ObservableProperty] int stopVault;
+    // [ObservableProperty] int winAmount;
+    // [ObservableProperty] int amount;
+    // [ObservableProperty] PlayState status;
     [ObservableProperty] Player player;
 
 
-    [RelayCommand(CanExecute = nameof(CanStartOver))]
+    [RelayCommand]
     async Task StartOver()
     {
-        this.Status = PlayState.InProgress;
-        this.Vault = 0;
-        this.Amount = 0;
-        this.WinAmount = 0;
-        this.StopVault = 0;
-        this.Rounds = this.randomizer.Next(4, 15);
-        this.IsJackpot = this.randomizer.Next(1, 40) == 39; // 1 in 40 chance
+        // this.Status = PlayState.InProgress;
+        // this.Vault = 0;
+        // this.Amount = 0;
+        // this.WinAmount = 0;
+        // this.StopVault = 0;
         
-        logger.LogDebug($"Rounds: {this.Rounds} - Jackpot: {this.IsJackpot}");
-        
-        await this.Speak(1000, $"Good Luck {this.Name}.  Let's play!");
+        // logger.LogDebug($"Rounds: {this.Rounds} - Jackpot: {this.IsJackpot}");
+        gameContext.Start(this.Player.Id);
+        await this.Speak(1000, $"Good Luck {this.Player.Name}.  Let's play!");
         await this.NextRound();
     }
-    bool CanStartOver() => !String.IsNullOrWhiteSpace(this.Name);
 
     [RelayCommand(CanExecute = nameof(CanContinue))]
     Task Continue() => this.NextRound();
-    bool CanContinue() => this.Vault < this.Rounds && this.Status == PlayState.InProgress;
+    bool CanContinue() => true; //this.Vault < this.Rounds && this.Status == PlayState.InProgress;
 
     const string ENABLE = "Enable Speech Recognizer";
     const string DISABLE = "Disable Speech Recognizer";
@@ -159,12 +158,7 @@ public partial class GameViewModel(
                 break;
             
             default:
-                if (txt.StartsWith("my name is"))
-                {
-                    var newName = txt.Replace("my name is", "").Trim();
-                    if (!String.IsNullOrWhiteSpace(newName))
-                        this.Name = newName;
-                }
+                logger.LogInformation("Unknown Speech Command: {txt}", txt);
                 break;
         }
     }
@@ -173,14 +167,15 @@ public partial class GameViewModel(
     [RelayCommand(CanExecute = nameof(CanStop))]
     async Task Stop()
     {
-        this.Status = PlayState.WinStop;
-        this.WinAmount = this.Amount;
-        this.StopVault = this.Vault;
+        gameContext.Stop();
+        
+        // this.WinAmount = this.Amount;
+        // this.StopVault = this.Vault;
         
         await this.Speak(
             500,
-            $"Good Job {this.Name}",
-            $"You won {this.Amount} dollars",
+            $"Good Job {this.Player.Name}",
+            $"You won {gameContext.CurrentAmount} dollars",
             "Let's see what you could have won"
         );
         
@@ -188,7 +183,7 @@ public partial class GameViewModel(
         while (await this.TryNextRound())
             await Task.Delay(500);
     }
-    bool CanStop() => this.Vault > 0 && this.Status == PlayState.InProgress;
+    bool CanStop() => gameContext.CurrentVault > 1; //&& this.Status == PlayState.InProgress;
 
     
     [RelayCommand]
@@ -215,66 +210,49 @@ public partial class GameViewModel(
     async Task<bool> TryNextRound()
     {
         var next = false;
-        this.Vault++;
-
-        if (this.Vault == this.Rounds)
-        {
-            if (this.IsJackpot)
-            {
-                if (this.Status != PlayState.WinStop)
-                {
-                    this.Status = PlayState.Win;
-                    this.WinAmount = 1000000;
-                }
-                sounds.PlayJackpot();
-            }
-            else
-            {
-                if (this.Status != PlayState.WinStop)
-                {
-                    this.WinAmount = 0;
-                    this.Status = PlayState.Lose;
-                }
-                await this.Speak(500, $"Vault {this.Vault}");
-                sounds.PlayAlarm();
-            }
-        }
-        else
-        {
-            if (this.Status != PlayState.WinStop)
-                this.Status = PlayState.InProgress;
-
-            this.Amount += this.GetNextAmount();
-            await this.Speak(
-                500,
-                $"Vault {this.Vault}",
-                $"{this.Amount} dollars"
-            );
-            next = true;
-        }
+        
+        // this.Vault++;
+        //
+        // gameContext.NextRound()
+        //     
+        // if (this.Vault == this.Rounds)
+        // {
+        //     if (this.IsJackpot)
+        //     {
+        //         if (this.Status != PlayState.WinStop)
+        //         {
+        //             this.Status = PlayState.Win;
+        //             this.WinAmount = 1000000;
+        //         }
+        //         sounds.PlayJackpot();
+        //     }
+        //     else
+        //     {
+        //         if (this.Status != PlayState.WinStop)
+        //         {
+        //             this.WinAmount = 0;
+        //             this.Status = PlayState.Lose;
+        //         }
+        //         await this.Speak(500, $"Vault {this.Vault}");
+        //         sounds.PlayAlarm();
+        //     }
+        // }
+        // else
+        // {
+        //     if (this.Status != PlayState.WinStop)
+        //         this.Status = PlayState.InProgress;
+        //
+        //     this.Amount += this.GetNextAmount();
+        //     await this.Speak(
+        //         500,
+        //         $"Vault {this.Vault}",
+        //         $"{this.Amount} dollars"
+        //     );
+        //     next = true;
+        // }
         return next;
     }
-
-
-    List<int> amounts;
-    int GetNextAmount()
-    {
-        if (this.amounts == null)
-        {
-            this.amounts = new();
-            this.amounts.AddRange(Enumerable.Repeat(50, 10));
-            this.amounts.AddRange(Enumerable.Repeat(100, 25));
-            this.amounts.AddRange(Enumerable.Repeat(200, 25));
-            this.amounts.AddRange(Enumerable.Repeat(250, 25));
-            this.amounts.AddRange(Enumerable.Repeat(300, 25));
-            this.amounts.AddRange(Enumerable.Repeat(500, 25));
-            this.amounts.AddRange(Enumerable.Repeat(1000, 25));
-        }
-        var index = new Random().Next(0, this.amounts.Count);
-        var amount = this.amounts[index];
-        return amount;
-    }
-
+    
 
     async Task Speak(int pauseBetween, params string[] sentences)
     {

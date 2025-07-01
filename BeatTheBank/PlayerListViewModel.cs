@@ -37,6 +37,9 @@ public partial class PlayerListViewModel(
     //
     // // lost amounts sum amount where same game and vault > stopvault
     // public int StopVault { get; set; }
+    
+    // jackpot if vaults == stopvault and amount == 1000000
+    // lost amounts sum amount where same game and vault > stopvault
         this.Players = await data.QueryAsync<PlayerStats>(
             """
             SELECT
