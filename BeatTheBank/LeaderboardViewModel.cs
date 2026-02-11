@@ -4,9 +4,10 @@ using CommunityToolkit.Mvvm.Input;
 namespace BeatTheBank;
 
 
-[ShellMap<LeaderboardPage>]
+[ShellMap<LeaderboardPage>(registerRoute: false)]
 public partial class LeaderboardViewModel(
     IMediator mediator,
+    INavigator navigator,
     ILogger<LeaderboardViewModel> logger
 ) : ObservableObject, IPageLifecycleAware
 {
@@ -17,6 +18,9 @@ public partial class LeaderboardViewModel(
     public void OnAppearing() => _ = this.RefreshAsync();
     public void OnDisappearing() { }
 
+
+    [RelayCommand]
+    async Task NewGame() => await navigator.NavigateTo<GameViewModel>();
 
     [RelayCommand]
     async Task RefreshAsync()

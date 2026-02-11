@@ -1,15 +1,12 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
-using CommunityToolkit.Maui.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace BeatTheBank;
 
-// TODO: don't allow tabs to be switched during game
-[ShellMap<MainPage>(registerRoute: false)]
-public partial class MainViewModel(
-    ILogger<MainViewModel> logger,
+[ShellMap<GamePage>]
+public partial class GameViewModel(
+    ILogger<GameViewModel> logger,
     INavigator navigator,
     ISpeechService speech,
     IDeviceDisplay deviceDisplay,

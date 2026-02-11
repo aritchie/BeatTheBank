@@ -6,26 +6,26 @@ using Shiny.Mediator;
 
 namespace BeatTheBank.Tests.ViewModels;
 
-public class MainViewModelTests
+public class GameViewModelTests
 {
-    readonly ILogger<MainViewModel> logger;
+    readonly ILogger<GameViewModel> logger;
     readonly INavigator navigator;
     readonly ISpeechService speech;
     readonly IDeviceDisplay deviceDisplay;
     readonly SoundEffectService sounds;
     readonly IMediator mediator;
-    readonly MainViewModel vm;
+    readonly GameViewModel vm;
 
-    public MainViewModelTests()
+    public GameViewModelTests()
     {
-        logger = Substitute.For<ILogger<MainViewModel>>();
+        logger = Substitute.For<ILogger<GameViewModel>>();
         navigator = Substitute.For<INavigator>();
         speech = Substitute.For<ISpeechService>();
         deviceDisplay = Substitute.For<IDeviceDisplay>();
         sounds = Substitute.For<SoundEffectService>();
         mediator = Substitute.For<IMediator>();
 
-        vm = new MainViewModel(logger, navigator, speech, deviceDisplay, sounds, mediator);
+        vm = new GameViewModel(logger, navigator, speech, deviceDisplay, sounds, mediator);
     }
 
     [Fact]

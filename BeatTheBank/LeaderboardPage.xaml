@@ -32,6 +32,15 @@
                     </VerticalStackLayout>
                 </Border>
 
+                <!-- ===== NEW GAME BUTTON ===== -->
+                <Button Text="New Game"
+                        Command="{Binding NewGameCommand}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                        TextColor="{StaticResource White}"
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        HeightRequest="50" />
+
                 <!-- ===== PLAYER LIST ===== -->
                 <CollectionView ItemsSource="{Binding Players}"
                                 SelectionMode="None">

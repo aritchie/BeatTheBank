@@ -5,20 +5,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- === BEAT THE BANK THEME === -->
-    <!-- Gold & Green game-show palette -->
+    <!-- Money Green & Gold Trim palette -->
 
-    <!-- Primary: Rich Gold -->
-    <Color x:Key="Primary">#C8960C</Color>
-    <Color x:Key="PrimaryDark">#A67A08</Color>
-    <Color x:Key="PrimaryLight">#F5D060</Color>
+    <!-- Primary: Money Green -->
+    <Color x:Key="Primary">#0D7A3E</Color>
+    <Color x:Key="PrimaryDark">#065A2B</Color>
+    <Color x:Key="PrimaryLight">#34C770</Color>
 
-    <!-- Secondary: Money Green -->
-    <Color x:Key="Secondary">#1B8A4A</Color>
-    <Color x:Key="SecondaryDark">#14693A</Color>
-    <Color x:Key="SecondaryLight">#2ECC71</Color>
+    <!-- Secondary: Gold Trim -->
+    <Color x:Key="Secondary">#C8960C</Color>
+    <Color x:Key="SecondaryDark">#A67A08</Color>
+    <Color x:Key="SecondaryLight">#F5D060</Color>
 
-    <!-- Tertiary: Deep Vault -->
-    <Color x:Key="Tertiary">#1A1A2E</Color>
+    <!-- Tertiary: Deep Vault Green -->
+    <Color x:Key="Tertiary">#0B2618</Color>
 
     <!-- Accent: Alarm Red / Jackpot Glow -->
     <Color x:Key="Danger">#E74C3C</Color>
@@ -37,10 +37,10 @@
     <Color x:Key="Gray950">#121212</Color>
 
     <!-- Surface colors for cards/backgrounds -->
-    <Color x:Key="SurfaceLight">#FFF9E6</Color>
-    <Color x:Key="SurfaceDark">#1E1E2D</Color>
+    <Color x:Key="SurfaceLight">#E8F5E9</Color>
+    <Color x:Key="SurfaceDark">#0F2218</Color>
     <Color x:Key="CardLight">#FFFFFF</Color>
-    <Color x:Key="CardDark">#262636</Color>
+    <Color x:Key="CardDark">#152E1E</Color>
 
     <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
@@ -61,11 +61,11 @@
     <Color x:Key="Yellow100Accent">#F5D060</Color>
     <Color x:Key="Yellow200Accent">#FFE08A</Color>
     <Color x:Key="Yellow300Accent">#FFF0C0</Color>
-    <Color x:Key="Cyan100Accent">#2ECC71</Color>
-    <Color x:Key="Cyan200Accent">#58D68D</Color>
-    <Color x:Key="Cyan300Accent">#ABEBC6</Color>
-    <Color x:Key="Blue100Accent">#C8960C</Color>
-    <Color x:Key="Blue200Accent">#E0B840</Color>
-    <Color x:Key="Blue300Accent">#F5D060</Color>
+    <Color x:Key="Cyan100Accent">#34C770</Color>
+    <Color x:Key="Cyan200Accent">#5DD98A</Color>
+    <Color x:Key="Cyan300Accent">#A8E6C0</Color>
+    <Color x:Key="Blue100Accent">#0D7A3E</Color>
+    <Color x:Key="Blue200Accent">#1B9E52</Color>
+    <Color x:Key="Blue300Accent">#34C770</Color>
 
 </ResourceDictionary>
