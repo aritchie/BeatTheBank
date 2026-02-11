@@ -25,14 +25,8 @@ public static class MauiProgram
             .UseMaui()
         );
 
-        builder.Services.AddSingleton(AudioManager.Current);
-        builder.Services.AddSingleton(TextToSpeech.Default);
-        builder.Services.AddSingleton(SpeechToText.Default);
         builder.Services.AddSingleton(DeviceDisplay.Current);
-        builder.Services.AddSingleton<SoundEffectService>();
-        builder.Services.AddSingleton(new GameDatabase(
-            Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3")
-        ));
+        builder.Services.AddGeneratedServices();
 
         return builder.Build();
     }

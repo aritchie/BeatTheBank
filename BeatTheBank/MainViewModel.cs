@@ -6,26 +6,24 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BeatTheBank;
 
-
+// TODO: don't allow tabs to be switched during game
 [ShellMap<MainPage>(registerRoute: false)]
 public partial class MainViewModel(
     ILogger<MainViewModel> logger,
     INavigator navigator,
-    ITextToSpeech textToSpeech,
-    ISpeechToText speechRecognizer,
+    ISpeechService speech,
     IDeviceDisplay deviceDisplay,
     SoundEffectService sounds,
     IMediator mediator
 ) : ObservableObject, IPageLifecycleAware
 {
-    static readonly string[] NextVaultStatements = new[]
-    {
+    static readonly string[] NextVaultStatements = [
         "Alright, let's open it up",
         "Taking a chance and going for it",
         "Let's see what's in the next vault",
         "Let's do this",
         "Come on big money!"
-    };
+    ];
 
     readonly Random randomizer = new();
     [ObservableProperty] int rounds = 0;
@@ -48,14 +46,9 @@ public partial class MainViewModel(
     public void OnAppearing()
     {
         deviceDisplay.KeepScreenOn = true;
-        speechRecognizer.RecognitionResultCompleted += this.SpeechRecognizerOnRecognitionResultCompleted;
         this.NotifyExecuteChanged();
     }
 
-    public void OnDisappearing()
-    {
-        speechRecognizer.RecognitionResultCompleted -= this.SpeechRecognizerOnRecognitionResultCompleted;
-    }
     
     [ObservableProperty] string speechText = "Start Speech Recognizer";
     [ObservableProperty] string name;
@@ -79,7 +72,7 @@ public partial class MainViewModel(
         
         logger.LogDebug($"Rounds: {this.Rounds} - Jackpot: {this.IsJackpot}");
         
-        await this.Speak(1000, $"Good Luck {this.Name}.  Let's play!");
+        await speech.SpeakIterations(1000, $"Good Luck {this.Name}.  Let's play!");
         await this.NextRound();
     }
     bool CanStartOver() => !String.IsNullOrWhiteSpace(this.Name);
@@ -96,25 +89,54 @@ public partial class MainViewModel(
     {
         try
         {
-            if (speechRecognizer.CurrentState == SpeechToTextState.Listening)
+            if (speech.IsListening)
             {
-                await speechRecognizer.StopListenAsync();
+                await speech.StopListening();
                 this.SpeechText = ENABLE;
                 return;
             }
 
-            var granted = await speechRecognizer.RequestPermissions();
+            var granted = await speech.StartListening(txt =>
+            {
+                switch (txt)
+                {
+                    case "yes":
+                    case "next":
+                    case "keep going":
+                    case "continue":
+                    case "go":
+                        if (this.ContinueCommand.CanExecute(null))
+                            this.ContinueCommand.Execute(null);
+                        break;
+            
+                    case "no":
+                    case "stop":
+                        if (this.StopCommand.CanExecute(null))
+                            this.StopCommand.Execute(null);
+                        break;
+            
+                    case "try again":
+                    case "start over":
+                    case "restart":
+                        if (this.StartOverCommand.CanExecute(null))
+                            this.StartOverCommand.Execute(null);
+                        break;
+            
+                    default:
+                        if (txt.StartsWith("my name is"))
+                        {
+                            var newName = txt.Replace("my name is", "").Trim();
+                            if (!String.IsNullOrWhiteSpace(newName))
+                                this.Name = newName;
+                        }
+                        break;
+                }
+            });
             if (!granted)
             {
                 await navigator.Alert("Speech", "Permission denied");
                 return;
             }
-
-            await speechRecognizer.StartListenAsync(new SpeechToTextOptions
-            {
-                Culture = new CultureInfo("en-US"),
-                ShouldReportPartialResults = false
-            });
             this.SpeechText = DISABLE;
         }
         catch (Exception ex)
@@ -123,53 +145,13 @@ public partial class MainViewModel(
             await navigator.Alert("Error", "Something is wrong with speech recognition");
         }
     }
-    
 
-    void SpeechRecognizerOnRecognitionResultCompleted(object? sender, SpeechToTextRecognitionResultCompletedEventArgs e)
+    public void OnDisappearing()
     {
-        logger.LogInformation("Incoming Speech Result");
-        if (!e.RecognitionResult.IsSuccessful)
-            return;
-
-        var txt = e.RecognitionResult.Text?.ToLower() ?? String.Empty;
-        logger.LogInformation("Speech Result: {txt}", txt);
-        
-        switch (txt)
-        {
-            case "yes":
-            case "next":
-            case "keep going":
-            case "continue":
-            case "go":
-                if (this.ContinueCommand.CanExecute(null))
-                    this.ContinueCommand.Execute(null);
-                break;
-            
-            case "no":
-            case "stop":
-                if (this.StopCommand.CanExecute(null))
-                    this.StopCommand.Execute(null);
-                break;
-            
-            case "try again":
-            case "start over":
-            case "restart":
-                if (this.StartOverCommand.CanExecute(null))
-                    this.StartOverCommand.Execute(null);
-                break;
-            
-            default:
-                if (txt.StartsWith("my name is"))
-                {
-                    var newName = txt.Replace("my name is", "").Trim();
-                    if (!String.IsNullOrWhiteSpace(newName))
-                        this.Name = newName;
-                }
-                break;
-        }
+        _ = speech.StopListening();
     }
-    
 
+    
     [RelayCommand(CanExecute = nameof(CanStop))]
     async Task Stop()
     {
@@ -177,7 +159,7 @@ public partial class MainViewModel(
         this.WinAmount = this.Amount;
         this.StopVault = this.Vault;
 
-        await this.Speak(
+        await speech.SpeakIterations(
             500,
             $"Good Job {this.Name}",
             $"You won {this.Amount} dollars",
@@ -208,10 +190,10 @@ public partial class MainViewModel(
     {
         var index = this.randomizer.Next(0, NextVaultStatements.Length);
         var announce = NextVaultStatements[index];
-        await this.Speak(1000, announce);
+        await speech.SpeakIterations(1000, announce);
 
         if (await this.TryNextRound())
-            await textToSpeech.SpeakAsync("Do you wish to continue?");
+            await speech.Speak("Do you wish to continue?");
     }
 
 
@@ -240,7 +222,7 @@ public partial class MainViewModel(
                     this.Status = PlayState.Lose;
                     await this.SaveGameResult();
                 }
-                await this.Speak(500, $"Vault {this.Vault}");
+                await speech.SpeakIterations(500, $"Vault {this.Vault}");
                 sounds.PlayAlarm();
             }
         }
@@ -250,7 +232,7 @@ public partial class MainViewModel(
                 this.Status = PlayState.InProgress;
 
             this.Amount += this.GetNextAmount();
-            await this.Speak(
+            await speech.SpeakIterations(
                 500,
                 $"Vault {this.Vault}",
                 $"{this.Amount} dollars"
@@ -291,16 +273,6 @@ public partial class MainViewModel(
         this.StopVault,
         this.IsJackpot
     ));
-
-
-    async Task Speak(int pauseBetween, params string[] sentences)
-    {
-        foreach (var s in sentences)
-        {
-            await textToSpeech.SpeakAsync(s);
-            await Task.Delay(pauseBetween);
-        }
-    }
 }
 
 

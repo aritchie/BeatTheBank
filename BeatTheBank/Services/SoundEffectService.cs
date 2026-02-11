@@ -1,6 +1,6 @@
 ﻿using Plugin.Maui.Audio;
 
-namespace BeatTheBank;
+namespace BeatTheBank.Services;
 
 
 public class SoundEffectService

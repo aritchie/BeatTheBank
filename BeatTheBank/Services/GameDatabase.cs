@@ -4,10 +4,15 @@ using SQLite;
 namespace BeatTheBank.Services;
 
 
+[Singleton]
 public class GameDatabase
 {
     readonly SQLiteAsyncConnection connection;
 
+#if PLATFORM
+    public GameDatabase() : this(Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3")) { }
+#endif
+    
     public GameDatabase(string dbPath)
     {
         this.connection = new SQLiteAsyncConnection(dbPath);

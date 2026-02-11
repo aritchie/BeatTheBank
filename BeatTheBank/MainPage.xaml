@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:beatthebank="clr-namespace:BeatTheBank"
@@ -7,33 +7,198 @@
              x:Class="BeatTheBank.MainPage"
              Title="Beat The Bank">
 
-    <VerticalStackLayout Spacing="10">
-        <Entry Text="{Binding Name}" Placeholder="Name" />
-        <Label Text="{Binding Vault, StringFormat='Vault: {0}'}" />
-        <Label Text="{Binding Amount, StringFormat='Current Amount: ${0}'}" />
-        <Label Text="{Binding StopVault, StringFormat='Stop Vault: {0}'}" />
-        <Label Text="{Binding WinAmount, StringFormat='Stop Amount: ${0}'}" />
-        <Label Text="{Binding Status, StringFormat='Status: {0}'}" />
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="20,10">
 
-        <Button Text="{Binding SpeechText}" Command="{Binding SpeechCommand}" />
-        <Button Text="Start" Command="{Binding StartOverCommand}" />
-        <Button Text="Continue" Command="{Binding ContinueCommand}" />
-        <Button Text="Stop" Command="{Binding StopCommand}" />
+            <!-- ===== TITLE BANNER ===== -->
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray950}}"
+                    Padding="20,14"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                    <Label Text="BEAT THE BANK"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           FontFamily="OpenSansSemibold"
+                           TextColor="{StaticResource JackpotGlow}"
+                           HorizontalOptions="Center" />
+                    <Label Text="How lucky are you feeling?"
+                           FontSize="13"
+                           TextColor="{StaticResource Gray300}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
 
-        <Button Text="Jackpot Sound" Command="{Binding PlaySoundCommand}" CommandParameter="win" />
-        <Button Text="Lose Sound" Command="{Binding PlaySoundCommand}" CommandParameter="lose" />
-        
-        <toolkit:Expander>
-            <toolkit:Expander.Header>
-                <Label Text="OUTCOME"
-                       FontAttributes="Bold"
-                       FontSize="Medium" />
-            </toolkit:Expander.Header>
-            <VerticalStackLayout Padding="10">
-                <Label Text="{Binding Rounds, StringFormat='Rounds: {0}'}" />
-                <Label Text="{Binding IsJackpot, StringFormat='Jackpot Game: {0}'}" />
-            </VerticalStackLayout>
-        </toolkit:Expander>
-    </VerticalStackLayout>
+            <!-- ===== PLAYER NAME ===== -->
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                    Padding="16,12"
+                    Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+                <Entry Text="{Binding Name}"
+                       Placeholder="Enter your name, vault cracker..."
+                       FontSize="16"
+                       FontFamily="OpenSansSemibold"
+                       PlaceholderColor="{StaticResource Gray400}" />
+            </Border>
+
+            <!-- ===== VAULT DISPLAY ===== -->
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                    Padding="20"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*" RowSpacing="14" ColumnSpacing="10">
+
+                    <!-- Vault Number - big and proud -->
+                    <Border Grid.Row="0" Grid.ColumnSpan="2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray950}}"
+                            Padding="12"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 12">
+                        <Label Text="{Binding Vault, StringFormat='VAULT {0}'}"
+                               FontSize="32"
+                               FontAttributes="Bold"
+                               FontFamily="OpenSansSemibold"
+                               TextColor="{StaticResource JackpotGlow}"
+                               HorizontalOptions="Center" />
+                    </Border>
+
+                    <!-- Current Amount -->
+                    <VerticalStackLayout Grid.Row="1" Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                        <Label Text="CURRENT"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding Amount, StringFormat='${0:N0}'}"
+                               FontSize="26"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryLight}}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Win Amount -->
+                    <VerticalStackLayout Grid.Row="1" Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                        <Label Text="WINNINGS"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding WinAmount, StringFormat='${0:N0}'}"
+                               FontSize="26"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryLight}}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Status & Stop Info -->
+                    <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Border Grid.Column="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                Padding="8,6"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8">
+                            <Label Text="{Binding Status, StringFormat='Status: {0}'}"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center" />
+                        </Border>
+                        <Border Grid.Column="1"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                Padding="8,6"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8">
+                            <Label Text="{Binding StopVault, StringFormat='Stopped at: Vault {0}'}"
+                                   FontSize="13"
+                                   HorizontalOptions="Center" />
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ===== GAME CONTROLS ===== -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="Start"
+                        Command="{Binding StartOverCommand}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                        TextColor="{StaticResource White}"
+                        FontAttributes="Bold"
+                        FontSize="16" />
+                <Button Grid.Column="1"
+                        Text="Continue"
+                        Command="{Binding ContinueCommand}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                        TextColor="{StaticResource White}"
+                        FontAttributes="Bold"
+                        FontSize="16" />
+                <Button Grid.Column="2"
+                        Text="Stop"
+                        Command="{Binding StopCommand}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Danger}, Dark=#C0392B}"
+                        TextColor="{StaticResource White}"
+                        FontAttributes="Bold"
+                        FontSize="16" />
+            </Grid>
+
+            <!-- ===== SPEECH CONTROL ===== -->
+            <Button Text="{Binding SpeechText}"
+                    Command="{Binding SpeechCommand}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray600}}"
+                    TextColor="{StaticResource JackpotGlow}"
+                    FontSize="14" />
+
+            <!-- ===== SOUND EFFECTS ===== -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="Jackpot Sound"
+                        Command="{Binding PlaySoundCommand}"
+                        CommandParameter="win"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource PrimaryDark}}"
+                        TextColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}"
+                        FontSize="13" />
+                <Button Grid.Column="1"
+                        Text="Alarm Sound"
+                        Command="{Binding PlaySoundCommand}"
+                        CommandParameter="lose"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                        TextColor="{AppThemeBinding Light={StaticResource Danger}, Dark={StaticResource Danger}}"
+                        FontSize="13" />
+            </Grid>
+
+            <!-- ===== OUTCOME (SPOILER) ===== -->
+            <toolkit:Expander>
+                <toolkit:Expander.Header>
+                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                            Padding="14,10"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10">
+                        <Label Text="PEEK BEHIND THE CURTAIN"
+                               FontAttributes="Bold"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                               HorizontalOptions="Center" />
+                    </Border>
+                </toolkit:Expander.Header>
+                <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                        Padding="16,12"
+                        Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 0,0,10,10">
+                    <HorizontalStackLayout Spacing="20" HorizontalOptions="Center">
+                        <Label Text="{Binding Rounds, StringFormat='Rounds: {0}'}"
+                               FontSize="14"
+                               FontAttributes="Bold" />
+                        <Label Text="{Binding IsJackpot, StringFormat='Jackpot: {0}'}"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryLight}}" />
+                    </HorizontalStackLayout>
+                </Border>
+            </toolkit:Expander>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
-

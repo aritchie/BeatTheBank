@@ -3,6 +3,10 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:local="clr-namespace:BeatTheBank"
        Shell.FlyoutBehavior="Disabled"
+       Shell.TabBarBackgroundColor="{StaticResource Tertiary}"
+       Shell.TabBarForegroundColor="{StaticResource JackpotGlow}"
+       Shell.TabBarTitleColor="{StaticResource JackpotGlow}"
+       Shell.TabBarUnselectedColor="{StaticResource Gray400}"
        x:Class="BeatTheBank.AppShell"
        x:DataType="local:AppShell">
 
