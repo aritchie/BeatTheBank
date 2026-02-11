@@ -3,6 +3,7 @@
 namespace BeatTheBank.Services;
 
 
+[Singleton]
 public class SoundEffectService
 {
     readonly IAudioManager audioManager = AudioManager.Current;

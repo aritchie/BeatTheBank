@@ -50,6 +50,7 @@
 	<PropertyGroup Condition="'$(TargetFramework)' == '$(BaseTargetFramework)'">
 		<OutputType>Library</OutputType>
 		<UseMaui>false</UseMaui>
+		<DefineConstants>$(DefineConstants);PLATFORM</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

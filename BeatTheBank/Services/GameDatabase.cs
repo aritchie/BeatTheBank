@@ -10,15 +10,23 @@ public class GameDatabase
     readonly SQLiteAsyncConnection connection;
 
 #if PLATFORM
-    public GameDatabase() : this(Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3")) { }
-#endif
-    
+    public GameDatabase()
+    {
+        this.connection = new(Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3"));
+        this.Init();
+    }
+#else
     public GameDatabase(string dbPath)
     {
-        this.connection = new SQLiteAsyncConnection(dbPath);
+        this.connection = new(dbPath);
+        this.Init();
+    }
+#endif
+
+    void Init()
+    {
         this.connection.GetConnection().CreateTable<GameResult>();
     }
-
 
     public Task<int> SaveGameResultAsync(GameResult result)
         => this.connection.InsertAsync(result);
