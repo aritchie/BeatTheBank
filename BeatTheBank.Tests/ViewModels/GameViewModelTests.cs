@@ -1,8 +1,6 @@
-using BeatTheBank.Contracts;
 using BeatTheBank.Services;
 using Microsoft.Extensions.Logging;
 using Shiny;
-using Shiny.Mediator;
 
 namespace BeatTheBank.Tests.ViewModels;
 
