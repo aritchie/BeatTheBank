@@ -5,8 +5,16 @@
        Shell.FlyoutBehavior="Disabled"
        x:Class="BeatTheBank.AppShell"
        x:DataType="local:AppShell">
-    <ShellContent
-        Title="Wonderland"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+
+    <TabBar>
+        <ShellContent
+            Title="Play"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+
+        <ShellContent
+            Title="Leaderboard"
+            ContentTemplate="{DataTemplate local:LeaderboardPage}"
+            Route="LeaderboardPage" />
+    </TabBar>
 </Shell>

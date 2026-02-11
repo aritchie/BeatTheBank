@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:beatthebank="clr-namespace:BeatTheBank"
+             xmlns:models="clr-namespace:BeatTheBank.Models"
+             x:DataType="beatthebank:LeaderboardViewModel"
+             x:Class="BeatTheBank.LeaderboardPage"
+             Title="Leaderboard">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding RefreshCommand}">
+        <Grid RowDefinitions="Auto,*">
+
+            <!-- Header -->
+            <VerticalStackLayout Grid.Row="0" Spacing="5" Padding="15">
+                <Label Text="Top Players"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+                <Label Text="Pull down to refresh"
+                       FontSize="12"
+                       HorizontalOptions="Center"
+                       Opacity="0.6" />
+            </VerticalStackLayout>
+
+            <!-- Player List -->
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding Players}"
+                            SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center"
+                                         HorizontalOptions="Center"
+                                         Spacing="10"
+                                         Padding="20">
+                        <Label Text="No games played yet!"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center" />
+                        <Label Text="Go play some rounds and come back to see your stats!"
+                               FontSize="14"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Opacity="0.7" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:PlayerStats">
+                        <Frame Margin="10,5" Padding="15" CornerRadius="10" BorderColor="Gray">
+                            <VerticalStackLayout Spacing="8">
+
+                                <!-- Player Name & Total Won -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding PlayerName}"
+                                           FontSize="20"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding TotalWon, StringFormat='${0:N0}'}"
+                                           FontSize="20"
+                                           FontAttributes="Bold"
+                                           TextColor="Green" />
+                                </Grid>
+
+                                <!-- Core Stats Row -->
+                                <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="4">
+                                    <Label Grid.Column="0" Grid.Row="0"
+                                           Text="{Binding GamesPlayed, StringFormat='Games: {0}'}"
+                                           FontSize="13" />
+                                    <Label Grid.Column="1" Grid.Row="0"
+                                           Text="{Binding WinRate, StringFormat='Win Rate: {0:F1}%'}"
+                                           FontSize="13" />
+                                    <Label Grid.Column="2" Grid.Row="0"
+                                           Text="{Binding JackpotsHit, StringFormat='Jackpots: {0}'}"
+                                           FontSize="13" />
+
+                                    <Label Grid.Column="0" Grid.Row="1"
+                                           Text="{Binding TimesBusted, StringFormat='Busted: {0}'}"
+                                           FontSize="13" />
+                                    <Label Grid.Column="1" Grid.Row="1"
+                                           Text="{Binding TimesStopped, StringFormat='Stopped: {0}'}"
+                                           FontSize="13" />
+                                    <Label Grid.Column="2" Grid.Row="1"
+                                           Text="{Binding BestSingleGame, StringFormat='Best: ${0:N0}'}"
+                                           FontSize="13" />
+                                </Grid>
+
+                                <!-- Advanced Stats Row -->
+                                <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="4">
+                                    <Label Grid.Column="0" Grid.Row="0"
+                                           Text="{Binding AvgVaultsPerGame, StringFormat='Avg Vaults: {0:F1}'}"
+                                           FontSize="12"
+                                           Opacity="0.7" />
+                                    <Label Grid.Column="1" Grid.Row="0"
+                                           Text="{Binding LongestStreak, StringFormat='Streak: {0}'}"
+                                           FontSize="12"
+                                           Opacity="0.7" />
+                                    <Label Grid.Column="2" Grid.Row="0"
+                                           Text="{Binding RiskScore, StringFormat='Risk: {0:F0}%'}"
+                                           FontSize="12"
+                                           Opacity="0.7" />
+
+                                    <Label Grid.Column="0" Grid.Row="1"
+                                           Text="{Binding MoneyLeftOnTable, StringFormat='Left on Table: ${0:N0}'}"
+                                           FontSize="12"
+                                           Opacity="0.7"
+                                           Grid.ColumnSpan="2" />
+                                    <Label Grid.Column="2" Grid.Row="1"
+                                           Text="{Binding PotentialWinnings, StringFormat='Potential: ${0:N0}'}"
+                                           FontSize="12"
+                                           Opacity="0.7" />
+                                </Grid>
+
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
+    </RefreshView>
+</ContentPage>

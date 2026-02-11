@@ -17,14 +17,22 @@ public static class MauiProgram
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold"); 
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+
+        builder.AddShinyMediator(x => x
+            .AddMediatorRegistry()
+            .UseMaui()
+        );
 
         builder.Services.AddSingleton(AudioManager.Current);
         builder.Services.AddSingleton(TextToSpeech.Default);
         builder.Services.AddSingleton(SpeechToText.Default);
         builder.Services.AddSingleton(DeviceDisplay.Current);
         builder.Services.AddSingleton<SoundEffectService>();
+        builder.Services.AddSingleton(new GameDatabase(
+            Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3")
+        ));
 
         return builder.Build();
     }

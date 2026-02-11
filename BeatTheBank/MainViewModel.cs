@@ -14,7 +14,8 @@ public partial class MainViewModel(
     ITextToSpeech textToSpeech,
     ISpeechToText speechRecognizer,
     IDeviceDisplay deviceDisplay,
-    SoundEffectService sounds
+    SoundEffectService sounds,
+    IMediator mediator
 ) : ObservableObject, IPageLifecycleAware
 {
     static readonly string[] NextVaultStatements = new[]
@@ -175,17 +176,20 @@ public partial class MainViewModel(
         this.Status = PlayState.WinStop;
         this.WinAmount = this.Amount;
         this.StopVault = this.Vault;
-        
+
         await this.Speak(
             500,
             $"Good Job {this.Name}",
             $"You won {this.Amount} dollars",
             "Let's see what you could have won"
         );
-        
+
         // TODO: this keeps going which screws up starting a new game
         while (await this.TryNextRound())
             await Task.Delay(500);
+
+        // Save after reveal so PotentialAmount (this.Amount) reflects full game
+        await this.SaveGameResult();
     }
     bool CanStop() => this.Vault > 0 && this.Status == PlayState.InProgress;
 
@@ -224,6 +228,7 @@ public partial class MainViewModel(
                 {
                     this.Status = PlayState.Win;
                     this.WinAmount = 1000000;
+                    await this.SaveGameResult();
                 }
                 sounds.PlayJackpot();
             }
@@ -233,6 +238,7 @@ public partial class MainViewModel(
                 {
                     this.WinAmount = 0;
                     this.Status = PlayState.Lose;
+                    await this.SaveGameResult();
                 }
                 await this.Speak(500, $"Vault {this.Vault}");
                 sounds.PlayAlarm();
@@ -273,6 +279,18 @@ public partial class MainViewModel(
         var amount = this.amounts[index];
         return amount;
     }
+
+
+    Task SaveGameResult() => mediator.Send(new SaveGameResultCommand(
+        this.Name,
+        this.Status,
+        this.WinAmount,
+        this.Amount,
+        this.Vault,
+        this.Rounds,
+        this.StopVault,
+        this.IsJackpot
+    ));
 
 
     async Task Speak(int pauseBetween, params string[] sentences)

@@ -35,7 +35,11 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="11.2.0" />
 		<PackageReference Include="Shiny.Maui.Shell" Version="1.0.0-beta-0022" />
+		<PackageReference Include="Shiny.Mediator" Version="5.1.1" />
+		<PackageReference Include="Shiny.Mediator.Maui" Version="5.1.1" />
 		<PackageReference Include="Plugin.Maui.Audio" Version="4.0.0" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
 		<PackageReference Include="System.Reactive" Version="6.0.1" />
 	</ItemGroup>
 </Project>
