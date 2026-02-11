@@ -20,7 +20,7 @@ public class SoundEffectService
 
     public virtual void PlayBackgroundMusic()
     {
-        var player = this.GetOrCreatePlayer("gamemusic.wav");
+        var player = this.GetOrCreatePlayer("gamemusic.mp3");
         player.Loop = true;
         player.Volume = 0.25;
         player.Play();
@@ -28,7 +28,7 @@ public class SoundEffectService
 
     public virtual void StopBackgroundMusic()
     {
-        if (this.sounds.TryGetValue("gamemusic.wav", out var player) && player.IsPlaying)
+        if (this.sounds.TryGetValue("gamemusic.mp3", out var player) && player.IsPlaying)
             player.Stop();
     }
 
