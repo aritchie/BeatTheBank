@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/build-android.yml" />
+    <File Path=".github/workflows/build-ios.yml" />
+    <File Path="readme.md" />
+  </Folder>
+  <Project Path="BeatTheBank.Tests/BeatTheBank.Tests.csproj" />
+  <Project Path="BeatTheBank/BeatTheBank.csproj" />
+</Solution>
