@@ -18,21 +18,36 @@ public class SoundEffectService
     public void PlayAlarm() => this.Play("alarm.wav");
     public void PlayJackpot() => this.Play("jackpot.wav");
 
-    void Play(string fileName)
+    public virtual void PlayBackgroundMusic()
     {
-        //using var p = this.audioManager.CreatePlayer(this.GetStream(fileName));        
-        //p.Play();
+        var player = this.GetOrCreatePlayer("gamemusic.wav");
+        player.Loop = true;
+        player.Volume = 0.25;
+        player.Play();
+    }
+
+    public virtual void StopBackgroundMusic()
+    {
+        if (this.sounds.TryGetValue("gamemusic.wav", out var player) && player.IsPlaying)
+            player.Stop();
+    }
+
+    void Play(string fileName) => this.GetOrCreatePlayer(fileName).Play();
+
+    IAudioPlayer GetOrCreatePlayer(string fileName)
+    {
         if (!this.sounds.ContainsKey(fileName))
         {
             var player = this.audioManager.CreatePlayer(this.GetStream(fileName));
             this.sounds.Add(fileName, player);
         }
-        this.sounds[fileName].Play();
+        return this.sounds[fileName];
     }
 
 
     Stream GetStream(string fileName)
     {
+        // TODO: android implementation
 #if IOS
         var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, fileName);
         return File.OpenRead(fullPath);

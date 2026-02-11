@@ -32,6 +32,7 @@ public partial class GameViewModel(
         this.StartOverCommand.NotifyCanExecuteChanged();
         this.ContinueCommand.NotifyCanExecuteChanged();
         this.StopCommand.NotifyCanExecuteChanged();
+        this.CancelGameCommand.NotifyCanExecuteChanged();
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -69,6 +70,7 @@ public partial class GameViewModel(
         
         logger.LogDebug($"Rounds: {this.Rounds} - Jackpot: {this.IsJackpot}");
         
+        sounds.PlayBackgroundMusic();
         await speech.SpeakIterations(1000, $"Good Luck {this.Name}.  Let's play!");
         await this.NextRound();
     }
@@ -112,6 +114,12 @@ public partial class GameViewModel(
                             this.StopCommand.Execute(null);
                         break;
             
+                    case "cancel":
+                    case "quit":
+                        if (this.CancelGameCommand.CanExecute(null))
+                            this.CancelGameCommand.Execute(null);
+                        break;
+            
                     case "try again":
                     case "start over":
                     case "restart":
@@ -145,6 +153,7 @@ public partial class GameViewModel(
 
     public void OnDisappearing()
     {
+        sounds.StopBackgroundMusic();
         _ = speech.StopListening();
     }
 
@@ -152,6 +161,7 @@ public partial class GameViewModel(
     [RelayCommand(CanExecute = nameof(CanStop))]
     async Task Stop()
     {
+        sounds.StopBackgroundMusic();
         this.Status = PlayState.WinStop;
         this.WinAmount = this.Amount;
         this.StopVault = this.Vault;
@@ -173,6 +183,21 @@ public partial class GameViewModel(
     bool CanStop() => this.Vault > 0 && this.Status == PlayState.InProgress;
 
     
+    [RelayCommand(CanExecute = nameof(CanCancelGame))]
+    async Task CancelGame()
+    {
+        var confirm = await navigator.Confirm(
+            "Cancel Game",
+            "Are you sure you want to cancel the game and return to the leaderboard?"
+        );
+        if (confirm)
+        {
+            sounds.StopBackgroundMusic();
+            await navigator.GoBack();
+        }
+    }
+    bool CanCancelGame() => this.Status == PlayState.InProgress && this.Vault > 0;
+
     [RelayCommand]
     void PlaySound(string sound)
     {

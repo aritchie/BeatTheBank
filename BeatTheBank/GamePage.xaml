@@ -118,7 +118,7 @@
             </Border>
 
             <!-- ===== GAME CONTROLS ===== -->
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
                 <Button Grid.Column="0"
                         Text="Start"
                         Command="{Binding StartOverCommand}"
@@ -137,6 +137,13 @@
                         Text="Stop"
                         Command="{Binding StopCommand}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Danger}, Dark=#C0392B}"
+                        TextColor="{StaticResource White}"
+                        FontAttributes="Bold"
+                        FontSize="16" />
+                <Button Grid.Column="3"
+                        Text="Cancel"
+                        Command="{Binding CancelGameCommand}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray600}}"
                         TextColor="{StaticResource White}"
                         FontAttributes="Bold"
                         FontSize="16" />

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using SQLite;
 
 namespace BeatTheBank.Services;
@@ -44,20 +43,4 @@ public class GameDatabase
             .Table<GameResult>()
             .OrderByDescending(g => g.CompletedAt)
             .ToListAsync();
-}
-
-
-/// <summary>
-/// Simple async lazy initialization helper.
-/// </summary>
-public class AsyncLazy<T>
-{
-    readonly Lazy<Task<T>> inner;
-
-    public AsyncLazy(Func<Task<T>> factory)
-    {
-        this.inner = new Lazy<Task<T>>(factory);
-    }
-
-    public TaskAwaiter<T> GetAwaiter() => this.inner.Value.GetAwaiter();
 }
