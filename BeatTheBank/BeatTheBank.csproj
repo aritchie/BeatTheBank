@@ -72,7 +72,7 @@
 		<PackageReference Include="Plugin.Maui.Audio" Version="4.0.0" />
 		<PackageReference Include="Shiny.Reflector" Version="1.7.1" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.10.196-beta" />
-		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.2" />
+		<!--<PackageReference Include="SQLitePCLRaw.core" Version="3.0.2" />-->
 	</ItemGroup>
 	
 	<ItemGroup>
