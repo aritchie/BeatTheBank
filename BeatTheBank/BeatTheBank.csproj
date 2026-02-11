@@ -41,12 +41,12 @@
 		<SentryUploadAndroidProguardMapping>true</SentryUploadAndroidProguardMapping>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFrameworks)' != '$(BaseTargetFramework)'">
+	<PropertyGroup Condition="'$(TargetFramework)' != '$(BaseTargetFramework)'">
 		<OutputType>Exe</OutputType>
 		<UseMaui>true</UseMaui>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFrameworks)' == '$(BaseTargetFramework)'">
+	<PropertyGroup Condition="'$(TargetFramework)' == '$(BaseTargetFramework)'">
 		<OutputType>Library</OutputType>
 		<UseMaui>false</UseMaui>
 	</PropertyGroup>

@@ -14,6 +14,9 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
             .UseShinyShell(x => x.AddGeneratedMaps())
+#if !DEBUG
+            .UseSentry(x => x.Dsn = AssemblyInfo.SentryDsn)
+#endif
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -24,7 +27,6 @@ public static class MauiProgram
             .AddMediatorRegistry()
             .UseMaui()
         );
-
         builder.Services.AddSingleton(DeviceDisplay.Current);
         builder.Services.AddGeneratedServices();
 
