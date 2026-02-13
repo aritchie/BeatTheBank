@@ -15,6 +15,12 @@
                     Padding="20,14"
                     Stroke="Transparent"
                     StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                            Offset="3,5"
+                            Radius="12"
+                            Opacity="0.4" />
+                </Border.Shadow>
                 <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
                     <Label Text="BEAT THE BANK"
                            FontSize="28"
@@ -33,8 +39,14 @@
             <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
                     Padding="16,12"
                     Stroke="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                    StrokeThickness="1"
+                    StrokeThickness="2"
                     StrokeShape="RoundRectangle 12">
+                <Border.Shadow>
+                    <Shadow Brush="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Black}}"
+                            Offset="2,4"
+                            Radius="10"
+                            Opacity="0.3" />
+                </Border.Shadow>
                 <Entry Text="{Binding Name}"
                        Placeholder="Enter your name, vault cracker..."
                        FontSize="16"
@@ -45,17 +57,30 @@
             <!-- ===== VAULT DISPLAY ===== -->
             <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
                     Padding="20"
-                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                    StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                    StrokeThickness="2"
                     StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                            Offset="3,6"
+                            Radius="14"
+                            Opacity="0.4" />
+                </Border.Shadow>
                 <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*" RowSpacing="14" ColumnSpacing="10">
 
                     <!-- Vault Number - big and proud -->
                     <Border Grid.Row="0" Grid.ColumnSpan="2"
                             BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray950}}"
                             Padding="12"
-                            Stroke="Transparent"
+                            Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                            StrokeThickness="1"
                             StrokeShape="RoundRectangle 12">
+                        <Border.Shadow>
+                            <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                                    Offset="2,3"
+                                    Radius="8"
+                                    Opacity="0.3" />
+                        </Border.Shadow>
                         <Label Text="{Binding Vault, StringFormat='VAULT {0}'}"
                                FontSize="32"
                                FontAttributes="Bold"
@@ -118,29 +143,29 @@
             </Border>
 
             <!-- ===== GAME CONTROLS ===== -->
-            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
-                <Button Grid.Column="0"
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" RowSpacing="10" ColumnSpacing="10">
+                <Button Grid.Row="0" Grid.Column="0"
                         Text="Start"
                         Command="{Binding StartOverCommand}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
                         TextColor="{StaticResource White}"
                         FontAttributes="Bold"
                         FontSize="16" />
-                <Button Grid.Column="1"
+                <Button Grid.Row="0" Grid.Column="1"
                         Text="Continue"
                         Command="{Binding ContinueCommand}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                         TextColor="{StaticResource White}"
                         FontAttributes="Bold"
                         FontSize="16" />
-                <Button Grid.Column="2"
+                <Button Grid.Row="1" Grid.Column="0"
                         Text="Stop"
                         Command="{Binding StopCommand}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Danger}, Dark=#C0392B}"
                         TextColor="{StaticResource White}"
                         FontAttributes="Bold"
                         FontSize="16" />
-                <Button Grid.Column="3"
+                <Button Grid.Row="1" Grid.Column="1"
                         Text="Cancel"
                         Command="{Binding CancelGameCommand}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray600}}"
@@ -179,9 +204,15 @@
                 <toolkit:Expander.Header>
                     <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
                             Padding="14,10"
-                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
                             StrokeThickness="1"
                             StrokeShape="RoundRectangle 10">
+                        <Border.Shadow>
+                            <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                                    Offset="2,3"
+                                    Radius="8"
+                                    Opacity="0.25" />
+                        </Border.Shadow>
                         <Label Text="PEEK BEHIND THE CURTAIN"
                                FontAttributes="Bold"
                                FontSize="13"

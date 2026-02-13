@@ -18,6 +18,12 @@
                         Padding="20,14"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                                Offset="3,5"
+                                Radius="12"
+                                Opacity="0.4" />
+                    </Border.Shadow>
                     <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
                         <Label Text="TOP PLAYERS"
                                FontSize="28"
@@ -49,9 +55,15 @@
                     <CollectionView.EmptyView>
                         <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
                                 Padding="30,40"
-                                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                                StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                                StrokeThickness="2"
                                 StrokeShape="RoundRectangle 16">
+                            <Border.Shadow>
+                                <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                                        Offset="3,6"
+                                        Radius="14"
+                                        Opacity="0.4" />
+                            </Border.Shadow>
                             <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
                                 <Label Text="🏦"
                                        FontSize="48"
@@ -76,10 +88,16 @@
                         <DataTemplate x:DataType="models:PlayerStats">
                             <Border Margin="0,4"
                                     Padding="0"
-                                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                                    StrokeThickness="2"
                                     BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
                                     StrokeShape="RoundRectangle 14">
+                                <Border.Shadow>
+                                    <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                                            Offset="3,5"
+                                            Radius="12"
+                                            Opacity="0.35" />
+                                </Border.Shadow>
                                 <VerticalStackLayout Spacing="0">
 
                                     <!-- Player Header: Name + Total Won -->

@@ -30,6 +30,12 @@
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="18,12"/>
+        <Setter Property="Shadow">
+            <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                    Offset="2,4"
+                    Radius="8"
+                    Opacity="0.35" />
+        </Setter>
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
@@ -38,6 +44,7 @@
                         <VisualState.Setters>
                             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
                             <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="Opacity" Value="0.5" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -274,8 +281,8 @@
     <Style TargetType="Shadow">
         <Setter Property="Radius" Value="15" />
         <Setter Property="Opacity" Value="0.5" />
-        <Setter Property="Brush" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}" />
-        <Setter Property="Offset" Value="10,10" />
+        <Setter Property="Brush" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}" />
+        <Setter Property="Offset" Value="4,6" />
     </Style>
 
     <Style TargetType="Slider">
