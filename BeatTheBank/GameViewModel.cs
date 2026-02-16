@@ -46,7 +46,6 @@ public partial class GameViewModel(
         deviceDisplay.KeepScreenOn = true;
         this.NotifyExecuteChanged();
     }
-
     
     [ObservableProperty] string speechText = "Start Speech Recognizer";
     [ObservableProperty] string name;
@@ -199,6 +198,30 @@ public partial class GameViewModel(
     bool CanCancelGame() => this.Status == PlayState.InProgress && this.Vault > 0;
 
     [RelayCommand]
+    async Task ReturnToLeaderboard()
+    {
+        // If game is in progress, ask for confirmation
+        if (this.Status == PlayState.InProgress && this.Vault > 0)
+        {
+            var confirm = await navigator.Confirm(
+                "Return to Leaderboard",
+                "A game is in progress. Are you sure you want to return to the leaderboard and cancel this game?"
+            );
+            if (!confirm)
+                return;
+        }
+
+        sounds.StopBackgroundMusic();
+        await navigator.GoBack();
+    }
+
+    [RelayCommand]
+    async Task Peek()
+    {
+        var message = $"Rounds: {this.Rounds}\nJackpot: {this.IsJackpot}";
+        await navigator.Alert("The Spoiler", message);
+    }
+
     void PlaySound(string sound)
     {
         if (sound == "lose")

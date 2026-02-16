@@ -20,10 +20,7 @@ public class SpeechService(ILogger<SpeechService> logger) : ISpeechService
     readonly ISpeechToText Stt = SpeechToText.Default;
 
 
-    public Task Speak(string text)
-    {
-        return Tts.SpeakAsync("Do you wish to continue?");
-    }
+    public Task Speak(string text) => Tts.SpeakAsync(text);
 
     public async Task SpeakIterations(int pauseBetween, params IEnumerable<string> sentences)
     {

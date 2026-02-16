@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:beatthebank="clr-namespace:BeatTheBank"
              xmlns:models="clr-namespace:BeatTheBank.Models"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:DataType="beatthebank:LeaderboardViewModel"
              x:Class="BeatTheBank.LeaderboardPage"
+             x:Name="leaderboardPage"
              Title="Leaderboard">
 
     <RefreshView IsRefreshing="{Binding IsRefreshing}"
@@ -218,86 +218,73 @@
                                              Color="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
                                              Margin="16,0" />
 
-                                    <!-- Advanced Stats (Expandable) -->
-                                    <toolkit:Expander>
-                                        <toolkit:Expander.Header>
-                                            <Border BackgroundColor="Transparent"
-                                                    Padding="16,10"
-                                                    Stroke="Transparent">
-                                                <Label Text="MORE STATS ▾"
-                                                       FontSize="11"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
-                                                       HorizontalOptions="Center" />
-                                            </Border>
-                                        </toolkit:Expander.Header>
+                                    <!-- Advanced Stats (Always Visible) -->
+                                    <Grid Padding="16,12,16,0"
+                                          ColumnDefinitions="*,*"
+                                          RowDefinitions="Auto,Auto,Auto"
+                                          ColumnSpacing="8"
+                                          RowSpacing="10">
 
-                                        <Grid Padding="16,4,16,14"
-                                              ColumnDefinitions="*,*"
-                                              RowDefinitions="Auto,Auto,Auto"
-                                              ColumnSpacing="8"
-                                              RowSpacing="10">
+                                        <VerticalStackLayout Grid.Column="0" Grid.Row="0" Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="AVG VAULTS"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Gray400}"
+                                                   HorizontalOptions="Center" />
+                                            <Label Text="{Binding AvgVaultsPerGame, StringFormat='{0:F1}'}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
 
-                                            <VerticalStackLayout Grid.Column="0" Grid.Row="0" Spacing="1" HorizontalOptions="Center">
-                                                <Label Text="AVG VAULTS"
-                                                       FontSize="10"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{StaticResource Gray400}"
-                                                       HorizontalOptions="Center" />
-                                                <Label Text="{Binding AvgVaultsPerGame, StringFormat='{0:F1}'}"
-                                                       FontSize="16"
-                                                       FontAttributes="Bold"
-                                                       HorizontalOptions="Center" />
-                                            </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="1" Grid.Row="0" Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="STREAK"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Gray400}"
+                                                   HorizontalOptions="Center" />
+                                            <Label Text="{Binding LongestStreak}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryLight}}"
+                                                   HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
 
-                                            <VerticalStackLayout Grid.Column="1" Grid.Row="0" Spacing="1" HorizontalOptions="Center">
-                                                <Label Text="STREAK"
-                                                       FontSize="10"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{StaticResource Gray400}"
-                                                       HorizontalOptions="Center" />
-                                                <Label Text="{Binding LongestStreak}"
-                                                       FontSize="16"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryLight}}"
-                                                       HorizontalOptions="Center" />
-                                            </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="0" Grid.Row="1" Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="LEFT ON TABLE"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Gray400}"
+                                                   HorizontalOptions="Center" />
+                                            <Label Text="{Binding MoneyLeftOnTable, StringFormat='${0:N0}'}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Danger}"
+                                                   HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
 
-                                            <VerticalStackLayout Grid.Column="0" Grid.Row="1" Spacing="1" HorizontalOptions="Center">
-                                                <Label Text="LEFT ON TABLE"
-                                                       FontSize="10"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{StaticResource Gray400}"
-                                                       HorizontalOptions="Center" />
-                                                <Label Text="{Binding MoneyLeftOnTable, StringFormat='${0:N0}'}"
-                                                       FontSize="16"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{StaticResource Danger}"
-                                                       HorizontalOptions="Center" />
-                                            </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="1" Grid.Row="1" Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="POTENTIAL"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Gray400}"
+                                                   HorizontalOptions="Center" />
+                                            <Label Text="{Binding PotentialWinnings, StringFormat='${0:N0}'}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
 
-                                            <VerticalStackLayout Grid.Column="1" Grid.Row="1" Spacing="1" HorizontalOptions="Center">
-                                                <Label Text="POTENTIAL"
-                                                       FontSize="10"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{StaticResource Gray400}"
-                                                       HorizontalOptions="Center" />
-                                                <Label Text="{Binding PotentialWinnings, StringFormat='${0:N0}'}"
-                                                       FontSize="16"
-                                                       FontAttributes="Bold"
-                                                       HorizontalOptions="Center" />
-                                            </VerticalStackLayout>
-
-                                            <VerticalStackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Spacing="1" HorizontalOptions="Center">
-                                                <Label Text="RISK SCORE"
-                                                       FontSize="10"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{StaticResource Gray400}"
-                                                       HorizontalOptions="Center" />
-                                                <!-- Risk bar -->
-                                                <Grid WidthRequest="180" HeightRequest="20" HorizontalOptions="Center">
-                                                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                                                            Padding="0"
+                                        <VerticalStackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="RISK SCORE"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Gray400}"
+                                                   HorizontalOptions="Center" />
+                                            <!-- Risk bar -->
+                                            <Grid WidthRequest="180" HeightRequest="20" HorizontalOptions="Center">
+                                                <Border BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                                                        Padding="0"
                                                             Stroke="Transparent"
                                                             StrokeShape="RoundRectangle 6"
                                                             HorizontalOptions="Fill" />
@@ -308,9 +295,20 @@
                                                            HorizontalOptions="Center"
                                                            VerticalOptions="Center" />
                                                 </Grid>
-                                            </VerticalStackLayout>
-                                        </Grid>
-                                    </toolkit:Expander>
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <!-- Play as Player Button -->
+                                    <Button Margin="16,12,16,16"
+                                            Text="{Binding PlayerName, StringFormat='▶ PLAY AS {0}'}"
+                                            Command="{Binding Source={x:Reference leaderboardPage}, Path=BindingContext.NewGameCommand}"
+                                            CommandParameter="{Binding PlayerName}"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                            TextColor="{StaticResource White}"
+                                            FontAttributes="Bold"
+                                            FontSize="14"
+                                            Padding="16,12"
+                                            CornerRadius="8" />
 
                                 </VerticalStackLayout>
                             </Border>

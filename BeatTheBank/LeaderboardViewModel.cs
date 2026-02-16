@@ -20,7 +20,17 @@ public partial class LeaderboardViewModel(
 
 
     [RelayCommand]
-    async Task NewGame() => await navigator.NavigateTo<GameViewModel>();
+    async Task NewGame(string? playerName = null) 
+    {
+        if (!string.IsNullOrWhiteSpace(playerName))
+        {
+            await navigator.NavigateTo<GameViewModel>(vm => vm.Name = playerName);
+        }
+        else
+        {
+            await navigator.NavigateTo<GameViewModel>();
+        }
+    }
 
     [RelayCommand]
     async Task RefreshAsync()

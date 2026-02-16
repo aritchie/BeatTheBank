@@ -7,7 +7,8 @@
              x:Class="BeatTheBank.GamePage"
              Title="Beat The Bank">
 
-    <ScrollView>
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0">
         <VerticalStackLayout Spacing="16" Padding="20,10">
 
             <!-- ===== TITLE BANNER ===== -->
@@ -158,17 +159,10 @@
                         TextColor="{StaticResource White}"
                         FontAttributes="Bold"
                         FontSize="16" />
-                <Button Grid.Row="1" Grid.Column="0"
+                <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                         Text="Stop"
                         Command="{Binding StopCommand}"
                         BackgroundColor="{AppThemeBinding Light={StaticResource Danger}, Dark=#C0392B}"
-                        TextColor="{StaticResource White}"
-                        FontAttributes="Bold"
-                        FontSize="16" />
-                <Button Grid.Row="1" Grid.Column="1"
-                        Text="Cancel"
-                        Command="{Binding CancelGameCommand}"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray600}}"
                         TextColor="{StaticResource White}"
                         FontAttributes="Bold"
                         FontSize="16" />
@@ -200,43 +194,30 @@
             </Grid>
 
             <!-- ===== OUTCOME (SPOILER) ===== -->
-            <toolkit:Expander>
-                <toolkit:Expander.Header>
-                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
-                            Padding="14,10"
-                            Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 10">
-                        <Border.Shadow>
-                            <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
-                                    Offset="2,3"
-                                    Radius="8"
-                                    Opacity="0.25" />
-                        </Border.Shadow>
-                        <Label Text="PEEK BEHIND THE CURTAIN"
-                               FontAttributes="Bold"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
-                               HorizontalOptions="Center" />
-                    </Border>
-                </toolkit:Expander.Header>
-                <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
-                        Padding="16,12"
-                        Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 0,0,10,10">
-                    <HorizontalStackLayout Spacing="20" HorizontalOptions="Center">
-                        <Label Text="{Binding Rounds, StringFormat='Rounds: {0}'}"
-                               FontSize="14"
-                               FontAttributes="Bold" />
-                        <Label Text="{Binding IsJackpot, StringFormat='Jackpot: {0}'}"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryLight}}" />
-                    </HorizontalStackLayout>
-                </Border>
-            </toolkit:Expander>
+            <Button Text="🔍 PEEK BEHIND THE CURTAIN"
+                    Command="{Binding PeekCommand}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                    FontAttributes="Bold"
+                    FontSize="13"
+                    Padding="16,12"
+                    BorderWidth="1"
+                    BorderColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                    CornerRadius="10" />
 
         </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+
+        <!-- ===== PROMINENT CANCEL BUTTON AT BOTTOM ===== -->
+        <Button Grid.Row="1"
+                Text="⬅ RETURN TO LEADERBOARD"
+                Command="{Binding ReturnToLeaderboardCommand}"
+                BackgroundColor="{StaticResource Danger}"
+                TextColor="{StaticResource White}"
+                FontAttributes="Bold"
+                FontSize="18"
+                Padding="20,16"
+                Margin="10,10,10,0"
+                CornerRadius="8" />
+    </Grid>
 </ContentPage>
