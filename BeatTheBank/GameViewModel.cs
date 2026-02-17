@@ -222,6 +222,7 @@ public partial class GameViewModel(
         await navigator.Alert("The Spoiler", message);
     }
 
+    [RelayCommand]
     void PlaySound(string sound)
     {
         if (sound == "lose")

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Maui;
-using CommunityToolkit.Maui.Media;
 using Plugin.Maui.Audio;
 
 namespace BeatTheBank;
@@ -13,6 +12,7 @@ public static class MauiProgram
             .CreateBuilder()
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .AddAudio()
             .UseShinyShell(x => x.AddGeneratedMaps())
 #if !DEBUG
             .UseSentry(x => x.Dsn = AssemblyInfo.SentryDsn)

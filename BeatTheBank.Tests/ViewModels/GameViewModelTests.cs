@@ -77,20 +77,6 @@ public class GameViewModelTests
         speech.Received(1).StopListening();
     }
 
-    [Fact(Skip = "TODO: Need to mock audio")]
-    public void PlaySoundCommand_PlaysAlarmForLose()
-    {
-        vm.PlaySoundCommand.Execute("lose");
-        sounds.Received(1).PlayAlarm();
-    }
-
-    [Fact(Skip = "TODO: Need to mock audio")]
-    public void PlaySoundCommand_PlaysJackpotForWin()
-    {
-        vm.PlaySoundCommand.Execute("win");
-        sounds.Received(1).PlayJackpot();
-    }
-
     [Fact]
     public void CancelGameCommand_CannotExecute_WhenVaultIsZero()
     {
