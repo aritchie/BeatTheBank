@@ -20,6 +20,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
+		<AddCarPlay>false</AddCarPlay>
 		<EnableAotAnalyzer>true</EnableAotAnalyzer>
 		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 		<EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
@@ -42,6 +43,24 @@
 		<SentryUploadSources>false</SentryUploadSources>
 		<SentryUploadAndroidProguardMapping>true</SentryUploadAndroidProguardMapping>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(AddCarPlay)' == 'true'">
+		<DefineConstants>$(DefineConstants);CARPLAY</DefineConstants>
+	</PropertyGroup>
+	
+	<ItemGroup Condition="'$(AddCarPlay)' != 'true'">
+		<None Remove="Platforms\iOS\CarPlay\**" />
+		<Compile Remove="Platforms\iOS\CarPlay\**" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Update="Platforms\iOS\Info.CarPlay.plist" Condition="'$(AddCarApps)' == 'true'">
+			<LogicalName>Info.plist</LogicalName>
+		</None>
+		<None Update="Platforms\iOS\Info.Standard.plist" Condition="'$(AddCarApps)' != 'true'">
+			<LogicalName>Info.plist</LogicalName>
+		</None>
+	</ItemGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)' != '$(BaseTargetFramework)'">
 		<OutputType>Exe</OutputType>
