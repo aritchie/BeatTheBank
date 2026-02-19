@@ -49,17 +49,12 @@
 	</PropertyGroup>
 	
 	<ItemGroup Condition="'$(AddCarPlay)' != 'true'">
-		<None Remove="Platforms\iOS\CarPlay\**" />
 		<Compile Remove="Platforms\iOS\CarPlay\**" />
+		<None Remove="Platforms\iOS\CarPlay\**" />
 	</ItemGroup>
 	
-	<ItemGroup>
-		<None Update="Platforms\iOS\Info.CarPlay.plist" Condition="'$(AddCarApps)' == 'true'">
-			<LogicalName>Info.plist</LogicalName>
-		</None>
-		<None Update="Platforms\iOS\Info.Standard.plist" Condition="'$(AddCarApps)' != 'true'">
-			<LogicalName>Info.plist</LogicalName>
-		</None>
+	<ItemGroup Condition="'$(AddCarPlay)' == 'true'">
+		<None Remove="Platforms\iOS\Info.plist" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)' != '$(BaseTargetFramework)'">
