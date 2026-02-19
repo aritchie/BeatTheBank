@@ -54,7 +54,6 @@
 	</ItemGroup>
 	
 	<ItemGroup Condition="'$(AddCarPlay)' == 'true'">
-		<None Remove="Platforms\iOS\Info.plist" />
 		<CustomEntitlements Include="com.apple.developer.carplay-driving-task"
 							Type="Boolean"
 							Value="true"
