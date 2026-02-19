@@ -3,12 +3,14 @@ using CarPlay;
 using CoreLocation;
 using Foundation;
 using MapKit;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BeatTheBank;
 
 public class CarPlayGameManager
 {
     readonly CPInterfaceController interfaceController;
+    IServiceScope? scope;
     GameViewModel? viewModel;
     CPPointOfInterestTemplate? template;
     bool isCleanedUp;
@@ -21,7 +23,8 @@ public class CarPlayGameManager
     public void StartGame(string? playerName)
     {
         var services = IPlatformApplication.Current!.Services;
-        this.viewModel = services.GetRequiredService<GameViewModel>();
+        this.scope = services.CreateScope();
+        this.viewModel = this.scope.ServiceProvider.GetRequiredService<GameViewModel>();
 
         if (!string.IsNullOrWhiteSpace(playerName))
             this.viewModel.Name = playerName;
@@ -149,6 +152,8 @@ public class CarPlayGameManager
             this.viewModel.OnDisappearing();
             this.viewModel = null;
         }
+        this.scope?.Dispose();
+        this.scope = null;
         this.template = null;
     }
 }

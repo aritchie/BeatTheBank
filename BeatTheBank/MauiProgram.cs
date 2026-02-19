@@ -29,7 +29,6 @@ public static class MauiProgram
         );
         builder.Services.AddSingleton(DeviceDisplay.Current);
         builder.Services.AddGeneratedServices();
-        builder.Services.AddSingleton<GameViewModel>();
 
         return builder.Build();
     }

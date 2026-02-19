@@ -3,9 +3,9 @@
 	<PropertyGroup>
 		<BaseTargetFramework>net10.0</BaseTargetFramework>
 		<TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)-ios</TargetFrameworks>
-<!--		<TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)-maccatalyst</TargetFrameworks>-->
+		<!--<TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)-maccatalyst</TargetFrameworks>-->
 		<TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)-android</TargetFrameworks>
-		<TargetFrameworks Condition="'$(CI)' != 'true'">$(TargetFrameworks);$(BaseTargetFramework)</TargetFrameworks>
+		<TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)</TargetFrameworks>
 
 		<RootNamespace>BeatTheBank</RootNamespace>
 		<SingleProject>true</SingleProject>
