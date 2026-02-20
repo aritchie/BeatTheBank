@@ -9,9 +9,16 @@ The main objectives were:
 * Show off speech to text
 * Show off text to speech
 * Show off structured pretty code
+* Show off carplay with .NET MAUI
 * Track player stats and crown the vault-cracking champion
 
-IMO, I have checked all the above boxes. Now go forth with that knowledge and zero judgement of UI ;)
+## Screenshots
+
+| Phone | CarPlay |
+|-------|---------|
+| ![Phone Screenshot 1](phone1.png) | ![CarPlay Screenshot 1](carplay1.png) |
+| ![Phone Screenshot 2](phone2.png) | ![CarPlay Screenshot 2](carplay2.png) |
+| | ![CarPlay Screenshot 3](carplay3.png) |
 
 ## How It Works
 

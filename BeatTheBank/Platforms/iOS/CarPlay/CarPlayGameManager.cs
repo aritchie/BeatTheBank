@@ -11,7 +11,7 @@ public class CarPlayGameManager
     readonly Action onGameExit;
     IServiceScope? scope;
     GameViewModel? viewModel;
-    CPListTemplate? template;
+    CPInformationTemplate? template;
     bool isCleanedUp;
 
     public CarPlayGameManager(CPInterfaceController interfaceController, Action onGameExit)
@@ -27,86 +27,105 @@ public class CarPlayGameManager
         this.viewModel = this.scope.ServiceProvider.GetRequiredService<GameViewModel>();
         this.viewModel.Name = playerName;
         this.viewModel.PropertyChanged += this.OnViewModelPropertyChanged;
+        this.viewModel.StartOverCommand.CanExecuteChanged += this.OnCommandCanExecuteChanged;
+        this.viewModel.ContinueCommand.CanExecuteChanged += this.OnCommandCanExecuteChanged;
+        this.viewModel.StopCommand.CanExecuteChanged += this.OnCommandCanExecuteChanged;
 
         this.template = this.BuildTemplate();
         this.interfaceController.PushTemplate(this.template, true, null);
     }
 
-    CPListTemplate BuildTemplate()
+    CPInformationTemplate BuildTemplate()
     {
-        var sections = this.BuildSections();
-        var template = new CPListTemplate("Beat The Bank", sections);
+        var template = new CPInformationTemplate(
+            "Beat The Bank",
+            CPInformationTemplateLayout.TwoColumn,
+            this.BuildInfoItems(),
+            this.BuildActions()
+        );
         template.BackButton = new CPBarButton("Back", _ => this.onGameExit());
+        template.TrailingNavigationBarButtons = this.BuildNavBarButtons();
         return template;
     }
 
-    CPListSection[] BuildSections()
+    CPInformationItem[] BuildInfoItems()
     {
         var vm = this.viewModel!;
-
-        // Game status section
-        var nameItem = new CPListItem($"Player: {vm.Name}", null);
-        var vaultText = vm.Vault == 0 ? "Vault: —" : $"Vault: {vm.Vault}";
-        var vaultItem = new CPListItem(vaultText, null);
-        var amountItem = new CPListItem($"Amount: ${vm.Amount:N0}", $"Winnings: ${vm.WinAmount:N0}");
-
-        var infoItems = new ICPListTemplateItem[] { nameItem, vaultItem, amountItem };
-        var sections = new List<CPListSection> { new(infoItems, "Game Status", null) };
-
-        // Result section (only when game ended)
-        if (vm.Status == PlayState.Win)
-            sections.Add(new CPListSection(new ICPListTemplateItem[] { new CPListItem("🎰 JACKPOT!", $"Won ${vm.WinAmount:N0}!") }, "Result", null));
-        else if (vm.Status == PlayState.Lose)
-            sections.Add(new CPListSection(new ICPListTemplateItem[] { new CPListItem("🚨 BUSTED!", "Better luck next time") }, "Result", null));
-        else if (vm.Status == PlayState.WinStop)
-            sections.Add(new CPListSection(new ICPListTemplateItem[] { new CPListItem("💰 Stopped!", $"Won ${vm.WinAmount:N0} at Vault {vm.StopVault}") }, "Result", null));
-
-        // Action section
-        var actionItems = new List<ICPListTemplateItem>();
-
-        if (vm.StartOverCommand.CanExecute(null))
+        var items = new List<CPInformationItem>
         {
-            actionItems.Add(new CPListItem("Start Game", "Begin a new round")
+            new(vm.Name ?? "—", "Player"),
+            new(vm.Vault == 0 ? "—" : vm.Vault.ToString(), "Vault"),
+            new($"${vm.Amount:N0}", "Amount"),
+            new($"${vm.WinAmount:N0}", "Winnings")
+        };
+
+        if (vm.Status == PlayState.Win)
+            items.Add(new("🎰 JACKPOT!", $"Won ${vm.WinAmount:N0}!"));
+        else if (vm.Status == PlayState.Lose)
+            items.Add(new("🚨 BUSTED!", "Better luck next time"));
+        else if (vm.Status == PlayState.WinStop)
+            items.Add(new("💰 Stopped!", $"Won ${vm.WinAmount:N0} at Vault {vm.StopVault}"));
+
+        return items.ToArray();
+    }
+
+    CPBarButton[] BuildNavBarButtons()
+    {
+        var vm = this.viewModel!;
+        if (!vm.StartOverCommand.CanExecute(null))
+            return [];
+
+        return
+        [
+            new CPBarButton("Restart", _ =>
             {
-                Handler = (item, completion) =>
-                {
-                    if (vm.StartOverCommand.CanExecute(null))
-                        vm.StartOverCommand.Execute(null);
-                    completion();
-                }
-            });
+                if (vm.StartOverCommand.CanExecute(null))
+                    vm.StartOverCommand.Execute(null);
+            })
+        ];
+    }
+
+    CPTextButton[] BuildActions()
+    {
+        var vm = this.viewModel!;
+        var actions = new List<CPTextButton>();
+
+        if (vm.StartOverCommand.CanExecute(null) && vm.Vault == 0)
+        {
+            actions.Add(new CPTextButton("Start Game", CPTextButtonStyle.Confirm, _ =>
+            {
+                if (vm.StartOverCommand.CanExecute(null))
+                    vm.StartOverCommand.Execute(null);
+            }));
         }
 
         if (vm.ContinueCommand.CanExecute(null))
         {
-            actionItems.Add(new CPListItem("Continue to Next Vault", "Open next vault")
+            actions.Add(new CPTextButton("Continue", CPTextButtonStyle.Confirm, _ =>
             {
-                Handler = (item, completion) =>
-                {
-                    if (vm.ContinueCommand.CanExecute(null))
-                        vm.ContinueCommand.Execute(null);
-                    completion();
-                }
-            });
+                if (vm.ContinueCommand.CanExecute(null))
+                    vm.ContinueCommand.Execute(null);
+            }));
         }
 
         if (vm.StopCommand.CanExecute(null))
         {
-            actionItems.Add(new CPListItem("Stop at Vault", "Lock in your winnings")
+            actions.Add(new CPTextButton("Stop", CPTextButtonStyle.Cancel, _ =>
             {
-                Handler = (item, completion) =>
-                {
-                    if (vm.StopCommand.CanExecute(null))
-                        vm.StopCommand.Execute(null);
-                    completion();
-                }
-            });
+                if (vm.StopCommand.CanExecute(null))
+                    vm.StopCommand.Execute(null);
+            }));
         }
 
-        if (actionItems.Count > 0)
-            sections.Add(new CPListSection(actionItems.ToArray(), "Actions", null));
+        return actions.ToArray();
+    }
 
-        return sections.ToArray();
+    void OnCommandCanExecuteChanged(object? sender, EventArgs e)
+    {
+        if (this.isCleanedUp || this.template == null)
+            return;
+
+        this.UpdateDisplay();
     }
 
     void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -131,8 +150,9 @@ public class CarPlayGameManager
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var sections = this.BuildSections();
-            this.template.UpdateSections(sections);
+            this.template.Items = this.BuildInfoItems();
+            this.template.Actions = this.BuildActions();
+            this.template.TrailingNavigationBarButtons = this.BuildNavBarButtons();
         });
     }
 
@@ -142,6 +162,9 @@ public class CarPlayGameManager
         if (this.viewModel != null)
         {
             this.viewModel.PropertyChanged -= this.OnViewModelPropertyChanged;
+            this.viewModel.StartOverCommand.CanExecuteChanged -= this.OnCommandCanExecuteChanged;
+            this.viewModel.ContinueCommand.CanExecuteChanged -= this.OnCommandCanExecuteChanged;
+            this.viewModel.StopCommand.CanExecuteChanged -= this.OnCommandCanExecuteChanged;
             this.viewModel.OnDisappearing();
             this.viewModel = null;
         }

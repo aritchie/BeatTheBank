@@ -10,95 +10,98 @@
 
     <RefreshView IsRefreshing="{Binding IsRefreshing}"
                  Command="{Binding RefreshCommand}">
-        <ScrollView>
-            <VerticalStackLayout Spacing="16" Padding="20,10">
+        <CollectionView ItemsSource="{Binding Players}"
+                        SelectionMode="None">
 
-                <!-- ===== TITLE BANNER ===== -->
-                <Border BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray950}}"
-                        Padding="20,14"
-                        Stroke="Transparent"
+            <CollectionView.Header>
+                <VerticalStackLayout Spacing="16" Padding="20,60,20,0">
+
+                    <!-- ===== TITLE BANNER ===== -->
+                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray950}}"
+                            Padding="20,14"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 16">
+                        <Border.Shadow>
+                            <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                                    Offset="3,5"
+                                    Radius="12"
+                                    Opacity="0.4" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                            <Label Text="TOP PLAYERS"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{StaticResource JackpotGlow}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Pull down to refresh standings"
+                                   FontSize="13"
+                                   TextColor="{StaticResource Gray300}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===== NEW GAME BUTTON ===== -->
+                    <Button Text="New Game"
+                            Command="{Binding NewGameCommand}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                            TextColor="{StaticResource White}"
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            HeightRequest="50" />
+
+                </VerticalStackLayout>
+            </CollectionView.Header>
+
+            <!-- Empty State -->
+            <CollectionView.EmptyView>
+                <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                        Padding="30,40"
+                        Margin="20,16"
+                        Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                        StrokeThickness="2"
                         StrokeShape="RoundRectangle 16">
                     <Border.Shadow>
                         <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
-                                Offset="3,5"
-                                Radius="12"
+                                Offset="3,6"
+                                Radius="14"
                                 Opacity="0.4" />
                     </Border.Shadow>
-                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                        <Label Text="TOP PLAYERS"
-                               FontSize="28"
+                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                        <Label Text="🏦"
+                               FontSize="48"
+                               HorizontalOptions="Center" />
+                        <Label Text="THE VAULT IS EMPTY"
+                               FontSize="20"
                                FontAttributes="Bold"
                                FontFamily="OpenSansSemibold"
-                               TextColor="{StaticResource JackpotGlow}"
+                               TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryLight}}"
                                HorizontalOptions="Center" />
-                        <Label Text="Pull down to refresh standings"
-                               FontSize="13"
-                               TextColor="{StaticResource Gray300}"
-                               HorizontalOptions="Center" />
+                        <Label Text="No one has cracked the bank yet.&#10;Go play some rounds and claim your spot!"
+                               FontSize="14"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               LineHeight="1.4" />
                     </VerticalStackLayout>
                 </Border>
+            </CollectionView.EmptyView>
 
-                <!-- ===== NEW GAME BUTTON ===== -->
-                <Button Text="New Game"
-                        Command="{Binding NewGameCommand}"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                        TextColor="{StaticResource White}"
-                        FontAttributes="Bold"
-                        FontSize="18"
-                        HeightRequest="50" />
-
-                <!-- ===== PLAYER LIST ===== -->
-                <CollectionView ItemsSource="{Binding Players}"
-                                SelectionMode="None">
-
-                    <!-- Empty State -->
-                    <CollectionView.EmptyView>
-                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
-                                Padding="30,40"
-                                Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
-                                StrokeThickness="2"
-                                StrokeShape="RoundRectangle 16">
-                            <Border.Shadow>
-                                <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
-                                        Offset="3,6"
-                                        Radius="14"
-                                        Opacity="0.4" />
-                            </Border.Shadow>
-                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                                <Label Text="🏦"
-                                       FontSize="48"
-                                       HorizontalOptions="Center" />
-                                <Label Text="THE VAULT IS EMPTY"
-                                       FontSize="20"
-                                       FontAttributes="Bold"
-                                       FontFamily="OpenSansSemibold"
-                                       TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryLight}}"
-                                       HorizontalOptions="Center" />
-                                <Label Text="No one has cracked the bank yet.&#10;Go play some rounds and claim your spot!"
-                                       FontSize="14"
-                                       TextColor="{StaticResource Gray400}"
-                                       HorizontalOptions="Center"
-                                       HorizontalTextAlignment="Center"
-                                       LineHeight="1.4" />
-                            </VerticalStackLayout>
-                        </Border>
-                    </CollectionView.EmptyView>
-
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:PlayerStats">
-                            <Border Margin="0,4"
-                                    Padding="0"
-                                    Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
-                                    StrokeThickness="2"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
-                                    StrokeShape="RoundRectangle 14">
-                                <Border.Shadow>
-                                    <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
-                                            Offset="3,5"
-                                            Radius="12"
-                                            Opacity="0.35" />
-                                </Border.Shadow>
-                                <VerticalStackLayout Spacing="0">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:PlayerStats">
+                    <Border Margin="20,8"
+                            Padding="0"
+                            Stroke="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}"
+                            StrokeThickness="2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                            StrokeShape="RoundRectangle 14">
+                        <Border.Shadow>
+                            <Shadow Brush="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Black}}"
+                                    Offset="3,5"
+                                    Radius="12"
+                                    Opacity="0.35" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="0">
 
                                     <!-- Player Header: Name + Total Won -->
                                     <Border BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource Gray950}}"
@@ -315,8 +318,5 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
-            </VerticalStackLayout>
-        </ScrollView>
     </RefreshView>
 </ContentPage>

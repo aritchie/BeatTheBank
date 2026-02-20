@@ -59,6 +59,16 @@ public partial class GameViewModel(
     [RelayCommand(CanExecute = nameof(CanStartOver))]
     async Task StartOver()
     {
+        if (this.Vault > 0)
+        {
+            var confirm = await navigator.Confirm(
+                "Start Over",
+                "Are you sure you want to start a new game?"
+            );
+            if (!confirm)
+                return;
+        }
+
         this.Status = PlayState.InProgress;
         this.Vault = 0;
         this.Amount = 0;
