@@ -58,6 +58,13 @@
 							Type="Boolean"
 							Value="true"
 							Visible="false"/>
+
+		<!--
+		<CustomEntitlements Include="com.apple.developer.carplay-voice-based-conversation"
+							Type="Boolean"
+							Value="true"
+							Visible="false"/>
+		-->
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)' != '$(BaseTargetFramework)'">
