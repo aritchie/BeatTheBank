@@ -1,14 +1,16 @@
 using CarPlay;
 using Foundation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BeatTheBank;
 
 public class CarPlayLeaderboardManager
 {
     readonly CPInterfaceController interfaceController;
-    readonly Action<string?> onStartGame;
+    readonly Action<string> onStartGame;
+    IServiceScope? scope;
 
-    public CarPlayLeaderboardManager(CPInterfaceController interfaceController, Action<string?> onStartGame)
+    public CarPlayLeaderboardManager(CPInterfaceController interfaceController, Action<string> onStartGame)
     {
         this.interfaceController = interfaceController;
         this.onStartGame = onStartGame;
@@ -21,19 +23,19 @@ public class CarPlayLeaderboardManager
         _ = this.LoadPlayers();
     }
 
-    CPListTemplate BuildTemplate(CPListSection[] sections)
+    CPListTemplate BuildTemplate(CPListSection[] playerSections)
     {
-        var newGameItem = new CPListItem("New Game", "Say your name to start")
+        var newGameItem = new CPListItem("New Game", "Play as CarPlay")
         {
             Handler = (item, completion) =>
             {
-                this.onStartGame(null);
+                this.onStartGame("CarPlay");
                 completion();
             }
         };
 
         var allSections = new[] { new CPListSection([newGameItem as ICPListTemplateItem], "Actions", null) }
-            .Concat(sections)
+            .Concat(playerSections)
             .ToArray();
 
         return new CPListTemplate("Beat The Bank", allSections);
@@ -43,9 +45,14 @@ public class CarPlayLeaderboardManager
     {
         try
         {
-            var mediator = IPlatformApplication.Current!.Services.GetRequiredService<IMediator>();
-            var result = await mediator.Request(new GetLeaderboardRequest(10));
-            var players = result.Result;
+            var services = IPlatformApplication.Current!.Services;
+            this.scope = services.CreateScope();
+            var vm = this.scope.ServiceProvider.GetRequiredService<LeaderboardViewModel>();
+            await vm.RefreshCommand.ExecuteAsync(null);
+            var players = vm.Players;
+
+            this.scope.Dispose();
+            this.scope = null;
 
             if (players == null || players.Count == 0)
                 return;
@@ -74,6 +81,14 @@ public class CarPlayLeaderboardManager
         {
             var logger = IPlatformApplication.Current!.Services.GetRequiredService<ILogger<CarPlayLeaderboardManager>>();
             logger.LogError(ex, "Failed to load CarPlay leaderboard");
+            this.scope?.Dispose();
+            this.scope = null;
         }
+    }
+
+    public void Cleanup()
+    {
+        this.scope?.Dispose();
+        this.scope = null;
     }
 }

@@ -22,16 +22,26 @@ public class CarPlaySceneDelegate : CPTemplateApplicationSceneDelegate
     {
         this.gameManager?.Cleanup();
         this.gameManager = null;
+        this.leaderboardManager?.Cleanup();
         this.leaderboardManager = null;
         this.interfaceController = null;
     }
 
-    void StartGame(string? playerName)
+    void StartGame(string playerName)
     {
         if (this.interfaceController == null)
             return;
 
-        this.gameManager = new CarPlayGameManager(this.interfaceController);
+        this.gameManager?.Cleanup();
+        this.gameManager = new CarPlayGameManager(this.interfaceController, this.OnGameExit);
         this.gameManager.StartGame(playerName);
+    }
+
+    void OnGameExit()
+    {
+        this.gameManager?.Cleanup();
+        this.gameManager = null;
+        this.interfaceController?.PopTemplate(true, null);
+        this.leaderboardManager?.Show();
     }
 }

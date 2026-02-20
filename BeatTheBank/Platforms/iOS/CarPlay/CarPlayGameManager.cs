@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using CarPlay;
-using CoreLocation;
 using Foundation;
-using MapKit;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BeatTheBank;
@@ -10,110 +8,105 @@ namespace BeatTheBank;
 public class CarPlayGameManager
 {
     readonly CPInterfaceController interfaceController;
+    readonly Action onGameExit;
     IServiceScope? scope;
     GameViewModel? viewModel;
-    CPPointOfInterestTemplate? template;
+    CPListTemplate? template;
     bool isCleanedUp;
 
-    public CarPlayGameManager(CPInterfaceController interfaceController)
+    public CarPlayGameManager(CPInterfaceController interfaceController, Action onGameExit)
     {
         this.interfaceController = interfaceController;
+        this.onGameExit = onGameExit;
     }
 
-    public void StartGame(string? playerName)
+    public void StartGame(string playerName)
     {
         var services = IPlatformApplication.Current!.Services;
         this.scope = services.CreateScope();
         this.viewModel = this.scope.ServiceProvider.GetRequiredService<GameViewModel>();
-
-        if (!string.IsNullOrWhiteSpace(playerName))
-            this.viewModel.Name = playerName;
-
+        this.viewModel.Name = playerName;
         this.viewModel.PropertyChanged += this.OnViewModelPropertyChanged;
 
         this.template = this.BuildTemplate();
         this.interfaceController.PushTemplate(this.template, true, null);
-
-        if (!string.IsNullOrWhiteSpace(playerName))
-            _ = this.StartNewGame();
-        else
-            _ = this.PromptForName();
     }
 
-    async Task PromptForName()
+    CPListTemplate BuildTemplate()
     {
-        var speech = IPlatformApplication.Current!.Services.GetRequiredService<ISpeechService>();
-        await speech.Speak("Welcome to Beat the Bank. Say your name to start. For example, say, my name is John.");
-        await this.EnableSpeech();
-    }
-
-    async Task StartNewGame()
-    {
-        await this.EnableSpeech();
-
-        if (this.viewModel!.StartOverCommand.CanExecute(null))
-            await this.viewModel.StartOverCommand.ExecuteAsync(null);
-    }
-
-    async Task EnableSpeech()
-    {
-        if (this.viewModel == null)
-            return;
-
-        if (!this.viewModel.SpeechCommand.IsRunning)
-            await this.viewModel.SpeechCommand.ExecuteAsync(null);
-    }
-
-    CPPointOfInterestTemplate BuildTemplate()
-    {
-        var poi = this.CreateCurrentPoi();
-        var template = new CPPointOfInterestTemplate("Beat The Bank", [poi], nint.Zero);
+        var sections = this.BuildSections();
+        var template = new CPListTemplate("Beat The Bank", sections);
+        template.BackButton = new CPBarButton("Back", _ => this.onGameExit());
         return template;
     }
 
-    CPPointOfInterest CreateCurrentPoi()
+    CPListSection[] BuildSections()
     {
-        var title = this.GetTitle();
-        var subtitle = this.GetSubtitle();
+        var vm = this.viewModel!;
 
-        var location = new MKMapItem(new MKPlacemark(new CLLocationCoordinate2D(0, 0)));
-        var poi = new CPPointOfInterest(location, title, subtitle, null, null, null, null, null);
-        return poi;
-    }
+        // Game status section
+        var nameItem = new CPListItem($"Player: {vm.Name}", null);
+        var vaultText = vm.Vault == 0 ? "Vault: —" : $"Vault: {vm.Vault}";
+        var vaultItem = new CPListItem(vaultText, null);
+        var amountItem = new CPListItem($"Amount: ${vm.Amount:N0}", $"Winnings: ${vm.WinAmount:N0}");
 
-    string GetTitle()
-    {
-        if (this.viewModel == null)
-            return "Beat The Bank";
+        var infoItems = new ICPListTemplateItem[] { nameItem, vaultItem, amountItem };
+        var sections = new List<CPListSection> { new(infoItems, "Game Status", null) };
 
-        if (string.IsNullOrWhiteSpace(this.viewModel.Name))
-            return "Say: My name is...";
+        // Result section (only when game ended)
+        if (vm.Status == PlayState.Win)
+            sections.Add(new CPListSection(new ICPListTemplateItem[] { new CPListItem("🎰 JACKPOT!", $"Won ${vm.WinAmount:N0}!") }, "Result", null));
+        else if (vm.Status == PlayState.Lose)
+            sections.Add(new CPListSection(new ICPListTemplateItem[] { new CPListItem("🚨 BUSTED!", "Better luck next time") }, "Result", null));
+        else if (vm.Status == PlayState.WinStop)
+            sections.Add(new CPListSection(new ICPListTemplateItem[] { new CPListItem("💰 Stopped!", $"Won ${vm.WinAmount:N0} at Vault {vm.StopVault}") }, "Result", null));
 
-        return this.viewModel.Status switch
+        // Action section
+        var actionItems = new List<ICPListTemplateItem>();
+
+        if (vm.StartOverCommand.CanExecute(null))
         {
-            PlayState.Win => $"JACKPOT! ${this.viewModel.WinAmount:N0}!",
-            PlayState.Lose => "ALARM! You lost!",
-            PlayState.WinStop => $"Stopped! Won ${this.viewModel.WinAmount:N0}",
-            _ => this.viewModel.Vault == 0
-                ? $"Ready, {this.viewModel.Name}!"
-                : $"Vault {this.viewModel.Vault}: ${this.viewModel.Amount:N0}"
-        };
-    }
+            actionItems.Add(new CPListItem("Start Game", "Begin a new round")
+            {
+                Handler = (item, completion) =>
+                {
+                    if (vm.StartOverCommand.CanExecute(null))
+                        vm.StartOverCommand.Execute(null);
+                    completion();
+                }
+            });
+        }
 
-    string GetSubtitle()
-    {
-        if (this.viewModel == null)
-            return "Voice controlled";
-
-        return this.viewModel.Status switch
+        if (vm.ContinueCommand.CanExecute(null))
         {
-            PlayState.Win => "Say 'start over' to play again",
-            PlayState.Lose => "Say 'start over' to play again",
-            PlayState.WinStop => "Say 'start over' to play again",
-            _ => this.viewModel.Vault == 0
-                ? "Say 'start over' to begin"
-                : "Say 'continue' or 'stop'"
-        };
+            actionItems.Add(new CPListItem("Continue to Next Vault", "Open next vault")
+            {
+                Handler = (item, completion) =>
+                {
+                    if (vm.ContinueCommand.CanExecute(null))
+                        vm.ContinueCommand.Execute(null);
+                    completion();
+                }
+            });
+        }
+
+        if (vm.StopCommand.CanExecute(null))
+        {
+            actionItems.Add(new CPListItem("Stop at Vault", "Lock in your winnings")
+            {
+                Handler = (item, completion) =>
+                {
+                    if (vm.StopCommand.CanExecute(null))
+                        vm.StopCommand.Execute(null);
+                    completion();
+                }
+            });
+        }
+
+        if (actionItems.Count > 0)
+            sections.Add(new CPListSection(actionItems.ToArray(), "Actions", null));
+
+        return sections.ToArray();
     }
 
     void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -125,7 +118,7 @@ public class CarPlayGameManager
             or nameof(GameViewModel.Amount)
             or nameof(GameViewModel.Status)
             or nameof(GameViewModel.WinAmount)
-            or nameof(GameViewModel.Name))
+            or nameof(GameViewModel.StopVault))
         {
             this.UpdateDisplay();
         }
@@ -138,8 +131,8 @@ public class CarPlayGameManager
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var poi = this.CreateCurrentPoi();
-            this.template.SetPointsOfInterest([poi], nint.Zero);
+            var sections = this.BuildSections();
+            this.template.UpdateSections(sections);
         });
     }
 
