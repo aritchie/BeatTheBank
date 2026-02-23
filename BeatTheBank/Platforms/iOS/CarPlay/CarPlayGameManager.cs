@@ -71,16 +71,41 @@ public class CarPlayGameManager
 
     CPBarButton[] BuildNavBarButtons()
     {
-        var vm = this.viewModel!;
-        if (!vm.StartOverCommand.CanExecute(null))
+        var vm = this.viewModel;
+        if (vm == null || !vm.StartOverCommand.CanExecute(null))
             return [];
 
         return
         [
             new CPBarButton("Restart", _ =>
             {
-                if (vm.StartOverCommand.CanExecute(null))
+                if (!vm.StartOverCommand.CanExecute(null))
+                    return;
+
+                if (vm.Vault > 0)
+                {
+                    var alert = new CPActionSheetTemplate(
+                        "Start Over",
+                        "Are you sure you want to start a new game?",
+                        [
+                            new CPAlertAction("Yes", CPAlertActionStyle.Default, _ =>
+                            {
+                                this.interfaceController.DismissTemplate(true, null);
+                                vm.Vault = 0;
+                                vm.StartOverCommand.Execute(null);
+                            }),
+                            new CPAlertAction("Cancel", CPAlertActionStyle.Cancel, _ =>
+                            {
+                                this.interfaceController.DismissTemplate(true, null);
+                            })
+                        ]
+                    );
+                    this.interfaceController.PresentTemplate(alert, true, null);
+                }
+                else
+                {
                     vm.StartOverCommand.Execute(null);
+                }
             })
         ];
     }
@@ -150,6 +175,9 @@ public class CarPlayGameManager
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
+            if (this.isCleanedUp || this.template == null || this.viewModel == null)
+                return;
+
             this.template.Items = this.BuildInfoItems();
             this.template.Actions = this.BuildActions();
             this.template.TrailingNavigationBarButtons = this.BuildNavBarButtons();
