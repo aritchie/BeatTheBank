@@ -1,7 +1,13 @@
-﻿using CommunityToolkit.Maui;
+﻿using System.Text.Json.Serialization;
+using CommunityToolkit.Maui;
 using Plugin.Maui.Audio;
+using Shiny.SqliteDocumentDb;
 
 namespace BeatTheBank;
+
+
+[JsonSerializable(typeof(GameResult))]
+internal partial class AppJsonContext : JsonSerializerContext;
 
 
 public static class MauiProgram
@@ -28,6 +34,12 @@ public static class MauiProgram
             .UseMaui()
         );
         builder.Services.AddSingleton(DeviceDisplay.Current);
+        builder.Services.AddSqliteDocumentStore(opts =>
+        {
+            opts.ConnectionString = $"Data Source={Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3")}";
+            opts.JsonSerializerOptions = AppJsonContext.Default.Options;
+            opts.UseReflectionFallback = false;
+        });
         builder.Services.AddGeneratedServices();
 
         return builder.Build();

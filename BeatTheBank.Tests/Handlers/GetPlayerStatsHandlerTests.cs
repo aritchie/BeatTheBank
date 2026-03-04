@@ -1,22 +1,33 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using BeatTheBank.Handlers;
 using BeatTheBank.Models;
 using BeatTheBank.Services;
 using BeatTheBank.Contracts;
 using Microsoft.Extensions.Logging;
 using Shiny.Mediator;
+using Shiny.SqliteDocumentDb;
 
 namespace BeatTheBank.Tests.Handlers;
 
 public class GetPlayerStatsHandlerTests
 {
-    readonly string dbPath;
     readonly GameDatabase database;
     readonly GetPlayerStatsHandler handler;
 
     public GetPlayerStatsHandlerTests()
     {
-        dbPath = Path.Combine(Path.GetTempPath(), $"beatthebank_test_{Guid.NewGuid():N}.db3");
-        database = new GameDatabase(dbPath);
+        var dbPath = Path.Combine(Path.GetTempPath(), $"beatthebank_test_{Guid.NewGuid():N}.db3");
+        var store = new SqliteDocumentStore(new DocumentStoreOptions
+        {
+            ConnectionString = $"Data Source={dbPath}",
+            JsonSerializerOptions = new JsonSerializerOptions
+            {
+                TypeInfoResolver = new DefaultJsonTypeInfoResolver()
+            }
+        });
+        database = new GameDatabase(store);
         var logger = Substitute.For<ILogger<GetPlayerStatsHandler>>();
         handler = new GetPlayerStatsHandler(database, logger);
     }

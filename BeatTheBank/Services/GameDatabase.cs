@@ -1,46 +1,30 @@
-using SQLite;
+using Shiny.SqliteDocumentDb;
 
 namespace BeatTheBank.Services;
 
 
 [Singleton]
-public class GameDatabase
+public class GameDatabase(IDocumentStore store)
 {
-    readonly SQLiteAsyncConnection connection;
+    public async Task SaveGameResultAsync(GameResult result)
+        => await store.Set(result);
 
-#if PLATFORM
-    public GameDatabase()
+    public async Task<List<GameResult>> GetPlayerGamesAsync(string playerName)
     {
-        this.connection = new(Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3"));
-        this.Init();
-    }
-#else
-    public GameDatabase(string dbPath)
-    {
-        this.connection = new(dbPath);
-        this.Init();
-    }
-#endif
-
-    void Init()
-    {
-        this.connection.GetConnection().CreateTable<GameResult>();
-    }
-
-    public Task<int> SaveGameResultAsync(GameResult result)
-        => this.connection.InsertAsync(result);
-
-
-    public Task<List<GameResult>> GetPlayerGamesAsync(string playerName)
-        => this.connection
-            .Table<GameResult>()
+        var results = await store
+            .Query<GameResult>()
             .Where(g => g.PlayerName == playerName)
             .OrderByDescending(g => g.CompletedAt)
-            .ToListAsync();
+            .ToList();
+        return results.ToList();
+    }
 
-    public Task<List<GameResult>> GetAllGamesAsync()
-        => this.connection
-            .Table<GameResult>()
+    public async Task<List<GameResult>> GetAllGamesAsync()
+    {
+        var results = await store
+            .Query<GameResult>()
             .OrderByDescending(g => g.CompletedAt)
-            .ToListAsync();
+            .ToList();
+        return results.ToList();
+    }
 }

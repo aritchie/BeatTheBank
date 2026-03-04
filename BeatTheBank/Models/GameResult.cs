@@ -1,15 +1,10 @@
-using SQLite;
-
 namespace BeatTheBank.Models;
 
 
-[Table("GameResults")]
 public class GameResult
 {
-    [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    [Indexed]
     public string PlayerName { get; set; } = String.Empty;
 
     public DateTime CompletedAt { get; set; }
