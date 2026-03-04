@@ -9,12 +9,6 @@ public class SoundEffectService
     readonly IAudioManager audioManager = AudioManager.Current;
     readonly Dictionary<string, IAudioPlayer> sounds = new();
 
-// #if ANDROID
-//     readonly AndroidPlatform platform;
-//     public SoundEffectService(AndroidPlatform platform) => this.platform = platform;
-//
-// #endif
-
     public void PlayAlarm() => this.Play("alarm.wav");
     public void PlayJackpot() => this.Play("jackpot.wav");
 
@@ -47,13 +41,17 @@ public class SoundEffectService
 
     Stream GetStream(string fileName)
     {
-        // TODO: android implementation
-#if IOS
-        var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, fileName);
-        return File.OpenRead(fullPath);
-#elif MACCATALYST
-        var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, "Contents", "Resources", fileName);
-        return File.OpenRead(fullPath);
+        #if IOS || ANDROID || MACCATALYST
+        return FileSystem.OpenAppPackageFileAsync(fileName).GetAwaiter().GetResult();
+        // #if IOS
+        //         var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, fileName);
+        //         return File.OpenRead(fullPath);
+        // #elif ANDROID
+        //         var fullPath = Path.Combine("Assets", fileName);
+        //         return Android.App.Application.Context.Assets!.Open(fullPath);
+        // #elif MACCATALYST
+        //         var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, "Contents", "Resources", fileName);
+        //         return File.OpenRead(fullPath);
 #else
         return null;  //this.platform.AppContext.Assets!.Open(fileName);
 #endif
