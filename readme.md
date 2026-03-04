@@ -90,7 +90,7 @@ Switch to the **Leaderboard** tab to see who's on top, ranked by total winnings.
 | [MVVM Community Toolkit](https://github.com/CommunityToolkit/dotnet) | Source-generated MVVM goodness - `[ObservableProperty]` and `[RelayCommand]` so you can write less boilerplate and more game logic |
 | [MAUI Community Toolkit](https://github.com/CommunityToolkit/Maui) | Speech-to-text, text-to-speech, expander control, and a bunch of other handy bits |
 | [MAUI Audio Plugin](https://github.com/jfversluis/Plugin.Maui.Audio) | Cross-platform audio playback for those satisfying jackpot jingles and devastating alarm buzzes |
-| [sqlite-net-pcl](https://github.com/praeclarum/sqlite-net) | Lightweight SQLite ORM that stores every game result - your vault-cracking history lives on |
+| [Shiny SqliteDocumentDb](https://github.com/shinyorg/SqliteDocumentDb) | Schema-free SQLite document store with LINQ queries and full AOT support - stores every game result as a JSON document |
 | [System.Reactive](https://github.com/dotnet/reactive) | Reactive Extensions for .NET - because sometimes you need to observe things reactively |
 
 ## Architecture
@@ -101,7 +101,7 @@ A two-tab app that punches well above its weight. Here's how it's put together:
 - **Primary constructors** in C# 12 - because life is too short for field assignments
 - **Shiny Shell** with `[ShellMap]` attributes for declarative route registration and tab-based navigation
 - **Shiny Mediator** for clean command/query separation - `SaveGameResultCommand`, `GetPlayerStatsRequest`, `GetLeaderboardRequest` all wired via source-generated handlers with `[MediatorSingleton]`
-- **SQLite persistence** with lazy async initialization - the database creates itself on first access, no blocking startup
+- **SQLite document store** via Shiny.SqliteDocumentDb - zero schema, zero migrations, game results stored as JSON documents with LINQ querying
 - **IPageLifecycleAware** to hook into page appearing/disappearing for resource management
 - **Weighted random distribution** for vault amounts - $50 is rarer than $100-$1000, keeping things interesting
 - **Platform-specific audio loading** via conditional compilation (`#if IOS`, `#elif MACCATALYST`, etc.)
@@ -112,18 +112,18 @@ A two-tab app that punches well above its weight. Here's how it's put together:
 ```
 BeatTheBank/
 ├── Models/
-│   ├── GameResult.cs           # SQLite entity - every game, immortalized
+│   ├── GameResult.cs           # Document entity - every game, immortalized
 │   └── PlayerStats.cs          # 13 stats computed from game history
 ├── Contracts/
 │   ├── SaveGameResultCommand.cs    # ICommand - persist a finished game
 │   ├── GetPlayerStatsRequest.cs    # IRequest - stats for one player
 │   └── GetLeaderboardRequest.cs    # IRequest - top N players
 ├── Handlers/
-│   ├── SaveGameResultHandler.cs    # Writes game results to SQLite
+│   ├── SaveGameResultHandler.cs    # Writes game results to document store
 │   ├── GetPlayerStatsHandler.cs    # Computes stats from game history
 │   └── GetLeaderboardHandler.cs    # Single query, groups by player, sorts by riches
 ├── Services/
-│   ├── GameDatabase.cs         # SQLite wrapper with lazy async init
+│   ├── GameDatabase.cs         # Document store wrapper for game persistence
 │   └── StatsCalculator.cs      # Shared stats math - DRY and testable
 ├── MainViewModel.cs            # Game logic + saves results via mediator
 ├── MainPage.xaml               # The vault-cracking UI
