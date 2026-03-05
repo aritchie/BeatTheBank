@@ -46,11 +46,11 @@ public class SpeechService(ILogger<SpeechService> logger) : ISpeechService
             return false;
 
         Stt.RecognitionResultCompleted += this.OnRecognitionResultCompleted;
-        await Stt.StartListenAsync(new SpeechToTextOptions
+        await MainThread.InvokeOnMainThreadAsync(() => Stt.StartListenAsync(new SpeechToTextOptions
         {
             Culture = new CultureInfo("en-US"),
             ShouldReportPartialResults = false
-        });
+        }));
         return true;
     }
 
@@ -60,7 +60,7 @@ public class SpeechService(ILogger<SpeechService> logger) : ISpeechService
         this.listenCallback = null;
         if (Stt.CurrentState == SpeechToTextState.Listening)
         {
-            return Stt.StopListenAsync();
+            return MainThread.InvokeOnMainThreadAsync(() => Stt.StopListenAsync());
         }
 
         return Task.CompletedTask;

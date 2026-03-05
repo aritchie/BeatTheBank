@@ -7,7 +7,7 @@ namespace BeatTheBank.Services;
 public class GameDatabase(IDocumentStore store)
 {
     public async Task SaveGameResultAsync(GameResult result)
-        => await store.Set(result);
+        => await store.Insert(result);
 
     public async Task<List<GameResult>> GetPlayerGamesAsync(string playerName)
     {
