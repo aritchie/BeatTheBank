@@ -175,6 +175,9 @@ public partial class GameViewModel(
         this.WinAmount = this.Amount;
         this.StopVault = this.Vault;
 
+        // Save after reveal so PotentialAmount (this.Amount) reflects full game
+        await this.SaveGameResult();
+        
         await speech.SpeakIterations(
             500,
             $"Good Job {this.Name}",
@@ -185,9 +188,6 @@ public partial class GameViewModel(
         // TODO: this keeps going which screws up starting a new game
         while (await this.TryNextRound())
             await Task.Delay(500);
-
-        // Save after reveal so PotentialAmount (this.Amount) reflects full game
-        await this.SaveGameResult();
     }
     bool CanStop() => this.Vault > 0 && this.Status == PlayState.InProgress;
 
