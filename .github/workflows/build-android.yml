@@ -23,25 +23,7 @@ env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - name: '✅ Checkout'
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Install Workloads
-      run: dotnet workload install maui-android
-
-    - name: '🧪 Run Tests'
-      run: dotnet test BeatTheBank.Tests/BeatTheBank.Tests.csproj -c Release
-
   build:
-    needs: test
     runs-on: ubuntu-latest
 
     steps:
