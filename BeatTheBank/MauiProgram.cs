@@ -20,9 +20,6 @@ public static class MauiProgram
             .UseMauiCommunityToolkit()
             .AddAudio()
             .UseShinyShell(x => x.AddGeneratedMaps())
-#if !DEBUG
-            .UseSentry(x => x.Dsn = AssemblyInfo.SentryDsn)
-#endif
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

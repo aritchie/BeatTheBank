@@ -96,7 +96,6 @@ jobs:
           -p:CodesignKey='Apple Distribution: Allan Ritchie (T9KLD6CCM9)' \
           -o ${{ github.workspace }}/artifacts/ \
           -p:IpaPackageName=app.ipa \
-          -p:SentryDsn=${{ env.SENTRY_AUTH_TOKEN }} \
           -bl:${{ github.workspace}}/artifacts/ios.binlog \
           "${{ env.APP_PROJECT }}"
 
