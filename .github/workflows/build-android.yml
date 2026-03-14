@@ -54,7 +54,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Install Workloads
-      run: dotnet workload install maui-android
+      run: dotnet workload install maui-ios maui-android
 
     - name: Write Keystore to file
       run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > app.keystore

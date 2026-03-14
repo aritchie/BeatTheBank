@@ -60,7 +60,7 @@ jobs:
         xcode-version: ${{ env.XCODE_VERSION }}
 
     - name: Install Workloads
-      run: dotnet workload install maui-ios
+      run: dotnet workload install maui-ios maui-android
 
     - name: Download Apple Provisioning Profiles
       uses: Apple-Actions/download-provisioning-profiles@v4
