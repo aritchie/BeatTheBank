@@ -8,6 +8,7 @@ namespace BeatTheBank;
 public partial class GameViewModel(
     ILogger<GameViewModel> logger,
     INavigator navigator,
+    IDialogs dialogs,
     ISpeechService speech,
     IDeviceDisplay deviceDisplay,
     SoundEffectService sounds,
@@ -61,7 +62,7 @@ public partial class GameViewModel(
     {
         if (this.Vault > 0)
         {
-            var confirm = await navigator.Confirm(
+            var confirm = await dialogs.Confirm(
                 "Start Over",
                 "Are you sure you want to start a new game?"
             );
@@ -148,7 +149,7 @@ public partial class GameViewModel(
             });
             if (!granted)
             {
-                await navigator.Alert("Speech", "Permission denied");
+                await dialogs.Alert("Speech", "Permission denied");
                 return;
             }
             this.SpeechText = DISABLE;
@@ -156,7 +157,7 @@ public partial class GameViewModel(
         catch (Exception ex)
         {
             logger.LogError(ex, "There is an issue with speech recognition");
-            await navigator.Alert("Error", "Something is wrong with speech recognition");
+            await dialogs.Alert("Error", "Something is wrong with speech recognition");
         }
     }
 
@@ -195,7 +196,7 @@ public partial class GameViewModel(
     [RelayCommand(CanExecute = nameof(CanCancelGame))]
     async Task CancelGame()
     {
-        var confirm = await navigator.Confirm(
+        var confirm = await dialogs.Confirm(
             "Cancel Game",
             "Are you sure you want to cancel the game and return to the leaderboard?"
         );
@@ -213,7 +214,7 @@ public partial class GameViewModel(
         // If game is in progress, ask for confirmation
         if (this.Status == PlayState.InProgress && this.Vault > 0)
         {
-            var confirm = await navigator.Confirm(
+            var confirm = await dialogs.Confirm(
                 "Return to Leaderboard",
                 "A game is in progress. Are you sure you want to return to the leaderboard and cancel this game?"
             );
@@ -229,7 +230,7 @@ public partial class GameViewModel(
     async Task Peek()
     {
         var message = $"Rounds: {this.Rounds}\nJackpot: {this.IsJackpot}";
-        await navigator.Alert("The Spoiler", message);
+        await dialogs.Alert("The Spoiler", message);
     }
 
     [RelayCommand]

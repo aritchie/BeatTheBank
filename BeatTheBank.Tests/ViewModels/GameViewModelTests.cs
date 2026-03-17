@@ -8,6 +8,7 @@ public class GameViewModelTests
 {
     readonly ILogger<GameViewModel> logger;
     readonly INavigator navigator;
+    readonly IDialogs dialogs;
     readonly ISpeechService speech;
     readonly IDeviceDisplay deviceDisplay;
     readonly SoundEffectService sounds;
@@ -18,12 +19,13 @@ public class GameViewModelTests
     {
         logger = Substitute.For<ILogger<GameViewModel>>();
         navigator = Substitute.For<INavigator>();
+        dialogs = Substitute.For<IDialogs>();
         speech = Substitute.For<ISpeechService>();
         deviceDisplay = Substitute.For<IDeviceDisplay>();
         sounds = Substitute.For<SoundEffectService>();
         mediator = Substitute.For<IMediator>();
 
-        vm = new GameViewModel(logger, navigator, speech, deviceDisplay, sounds, mediator);
+        vm = new GameViewModel(logger, navigator, dialogs, speech, deviceDisplay, sounds, mediator);
     }
 
     [Fact]
@@ -92,7 +94,7 @@ public class GameViewModelTests
     [Fact]
     public async Task CancelGameCommand_NavigatesBack_WhenConfirmed()
     {
-        navigator.Confirm(Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+        dialogs.Confirm(Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
             .Returns(true);
 
         // Simulate an in-progress game state
@@ -106,7 +108,7 @@ public class GameViewModelTests
     [Fact]
     public async Task CancelGameCommand_DoesNotNavigateBack_WhenNotConfirmed()
     {
-        navigator.Confirm(Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+        dialogs.Confirm(Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
             .Returns(false);
 
         vm.Name = "Alice";
