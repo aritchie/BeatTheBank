@@ -35,6 +35,14 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # https://github.com/marketplace/actions/substitute-secrets-into-tokenised-file
+    - name: Configure From Secrets
+      uses: Lambdaspire/action-substitute-secrets-in-file@v1.1.0
+      with:
+        file: ${{ env.APPSETTINGS_JSON_FILE }}
+        tokenPattern: ${TOKEN}
+        secretsJson: ${{ toJSON(secrets) }}
+        
     - name: Install Workloads
       run: dotnet workload install maui-ios maui-android
 
