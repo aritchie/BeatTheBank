@@ -11,10 +11,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
-        <ApplicationTitle>BeatTheBank</ApplicationTitle>
+        <ApplicationTitle>Beat The Bank</ApplicationTitle>
         <ApplicationId>org.shiny.beatthebank</ApplicationId>
         <ApplicationIdGuid>85C81D9D-257A-496B-96D8-E4922B5D6864</ApplicationIdGuid>
-        <MauiVersion>10.0.41</MauiVersion>
+        <MauiVersion>10.0.50</MauiVersion>
 
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
@@ -56,6 +56,17 @@
         <UseMaui>false</UseMaui>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(CI)' == 'true' AND '$(Configuration)' == 'Release'">
+        <SentryOrg>shiny-software</SentryOrg>
+        <SentryProject>beatthebank</SentryProject>
+
+        <SentryCreateRelease>false</SentryCreateRelease>
+        <SentrySetCommits>false</SentrySetCommits>
+        <SentryUploadSymbols>true</SentryUploadSymbols>
+        <SentryUploadSources>true</SentryUploadSources>
+        <SentryUploadAndroidProguardMapping>true</SentryUploadAndroidProguardMapping>
+    </PropertyGroup>
+    
     <ItemGroup>
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0D7A3E"/>
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0B2618" BaseSize="128,128"/>
@@ -67,11 +78,13 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5"/>
         <PackageReference Include="Plugin.Maui.Audio" Version="4.0.0"/>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
         <PackageReference Include="CommunityToolkit.Maui" Version="14.0.1"/>
-        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="2.0.0"/>
-        <PackageReference Include="Shiny.Maui.Shell" Version="2.2.0"/>
+        <PackageReference Include="Sentry.Maui" Version="6.2.0" />
+        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="2.0.1"/>
+        <PackageReference Include="Shiny.Maui.Shell" Version="3.1.1"/>
         <PackageReference Include="Shiny.Mediator.Maui" Version="6.2.1"/>
         <PackageReference Include="Shiny.SqliteDocumentDb" Version="1.0.0" />
     </ItemGroup>
