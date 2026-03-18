@@ -21,6 +21,7 @@ env:
   APP_PROJECT: './BeatTheBank/BeatTheBank.csproj'
   APP_VERSION: '1.0'
   PACKAGE_NAME: 'org.shiny.beatthebank'
+  APPSETTINGS_JSON_FILE: './BeatTheBank/appsettings.json'
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
 jobs:

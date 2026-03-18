@@ -20,6 +20,7 @@ env:
   DOTNET_TFM: 'net10.0'
   DOTNET_VERSION: '10.0.102'
   PACKAGE_NAME: 'org.shiny.beatthebank'
+  APPSETTINGS_JSON_FILE: './BeatTheBank/appsettings.json'
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
 jobs:
