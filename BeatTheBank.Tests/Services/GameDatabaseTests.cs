@@ -2,7 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using BeatTheBank.Models;
 using BeatTheBank.Services;
-using Shiny.SqliteDocumentDb;
+using Shiny.DocumentDb;
+using Shiny.DocumentDb.Sqlite;
 
 namespace BeatTheBank.Tests.Services;
 
@@ -14,9 +15,9 @@ public class GameDatabaseTests : IDisposable
     public GameDatabaseTests()
     {
         dbPath = Path.Combine(Path.GetTempPath(), $"beatthebank_test_{Guid.NewGuid():N}.db3");
-        var store = new SqliteDocumentStore(new DocumentStoreOptions
+        var store = new DocumentStore(new DocumentStoreOptions
         {
-            ConnectionString = $"Data Source={dbPath}",
+            DatabaseProvider = new SqliteDatabaseProvider($"Data Source={dbPath}"),
             JsonSerializerOptions = new JsonSerializerOptions
             {
                 TypeInfoResolver = new DefaultJsonTypeInfoResolver()

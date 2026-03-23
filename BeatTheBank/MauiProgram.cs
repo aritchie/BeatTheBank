@@ -2,7 +2,8 @@
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Plugin.Maui.Audio;
-using Shiny.SqliteDocumentDb;
+using Shiny.DocumentDb;
+using Shiny.DocumentDb.Sqlite;
 
 namespace BeatTheBank;
 
@@ -38,9 +39,10 @@ public static class MauiProgram
             .UseMaui()
         );
         builder.Services.AddSingleton(DeviceDisplay.Current);
-        builder.Services.AddSqliteDocumentStore(opts =>
+        builder.Services.AddDocumentStore(opts =>
         {
-            opts.ConnectionString = $"Data Source={Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3")}";
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "beatthebank.db3");
+            opts.DatabaseProvider = new SqliteDatabaseProvider($"Data Source={dbPath}");
             opts.JsonSerializerOptions = AppJsonContext.Default.Options;
             opts.UseReflectionFallback = false;
         });

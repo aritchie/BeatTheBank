@@ -1,4 +1,4 @@
-using Shiny.SqliteDocumentDb;
+using Shiny.DocumentDb;
 
 namespace BeatTheBank.Services;
 

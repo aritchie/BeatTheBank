@@ -1,13 +1,12 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using BeatTheBank.Handlers;
 using BeatTheBank.Models;
 using BeatTheBank.Services;
 using BeatTheBank.Contracts;
 using Microsoft.Extensions.Logging;
-using Shiny.Mediator;
-using Shiny.SqliteDocumentDb;
+using Shiny.DocumentDb;
+using Shiny.DocumentDb.Sqlite;
 
 namespace BeatTheBank.Tests.Handlers;
 
@@ -19,9 +18,9 @@ public class GetPlayerStatsHandlerTests
     public GetPlayerStatsHandlerTests()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"beatthebank_test_{Guid.NewGuid():N}.db3");
-        var store = new SqliteDocumentStore(new DocumentStoreOptions
+        var store = new DocumentStore(new DocumentStoreOptions
         {
-            ConnectionString = $"Data Source={dbPath}",
+            DatabaseProvider = new SqliteDatabaseProvider($"Data Source={dbPath}"),
             JsonSerializerOptions = new JsonSerializerOptions
             {
                 TypeInfoResolver = new DefaultJsonTypeInfoResolver()
