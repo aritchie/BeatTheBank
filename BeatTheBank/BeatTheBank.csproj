@@ -32,7 +32,7 @@
         <PublishAot>true</PublishAot>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(AddCarPlay)' == 'true'">
+    <ItemGroup>
         <CustomEntitlements Include="com.apple.developer.carplay-driving-task"
                             Type="Boolean"
                             Value="true"
