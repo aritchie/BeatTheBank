@@ -1,7 +1,5 @@
 using System.ComponentModel;
 using CarPlay;
-using Foundation;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BeatTheBank;
 

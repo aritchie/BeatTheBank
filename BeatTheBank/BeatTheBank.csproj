@@ -90,4 +90,9 @@
         <PackageReference Include="Shiny.DocumentDb.Sqlite" Version="3.1.0-beta-0002" />
         <PackageReference Include="Shiny.DocumentDb.Extensions.DependencyInjection" Version="3.1.0-beta-0002" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="appsettings.json" />
+      <EmbeddedResource Include="appsettings.json" />
+    </ItemGroup>
 </Project>

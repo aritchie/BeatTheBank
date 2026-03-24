@@ -4,22 +4,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BeatTheBank;
 
-public class CarPlayLeaderboardManager
+public class CarPlayLeaderboardManager(CPInterfaceController interfaceController, Action<string> onStartGame)
 {
-    readonly CPInterfaceController interfaceController;
-    readonly Action<string> onStartGame;
     IServiceScope? scope;
 
-    public CarPlayLeaderboardManager(CPInterfaceController interfaceController, Action<string> onStartGame)
-    {
-        this.interfaceController = interfaceController;
-        this.onStartGame = onStartGame;
-    }
 
     public void Show()
     {
         var template = this.BuildTemplate([]);
-        this.interfaceController.SetRootTemplate(template, false, null);
+        interfaceController.SetRootTemplate(template, false, null);
         _ = this.LoadPlayers();
     }
 
@@ -29,7 +22,7 @@ public class CarPlayLeaderboardManager
         {
             Handler = (item, completion) =>
             {
-                this.onStartGame("CarPlay");
+                onStartGame("CarPlay");
                 completion();
             }
         };
@@ -66,7 +59,7 @@ public class CarPlayLeaderboardManager
                 {
                     Handler = (listItem, completion) =>
                     {
-                        this.onStartGame(p.PlayerName);
+                        onStartGame(p.PlayerName);
                         completion();
                     }
                 };
@@ -75,7 +68,7 @@ public class CarPlayLeaderboardManager
 
             var playerSection = new CPListSection(items, "Top Players", null);
             var template = this.BuildTemplate([playerSection]);
-            this.interfaceController.SetRootTemplate(template, true, null);
+            interfaceController.SetRootTemplate(template, true, null);
         }
         catch (Exception ex)
         {
