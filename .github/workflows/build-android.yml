@@ -29,12 +29,13 @@ jobs:
 
     steps:
     - name: '✅ Checkout'
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+        workloads: maui-ios, maui-android
 
       # https://github.com/marketplace/actions/substitute-secrets-into-tokenised-file
     - name: Configure From Secrets
@@ -44,9 +45,6 @@ jobs:
         tokenPattern: ${TOKEN}
         secretsJson: ${{ toJSON(secrets) }}
         
-    - name: Install Workloads
-      run: dotnet workload install maui-ios maui-android
-
     - name: Write Keystore to file
       run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > app.keystore
 

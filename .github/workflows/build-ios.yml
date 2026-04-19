@@ -15,9 +15,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XCODE_VERSION: 26.2.0
+  XCODE_VERSION: 26.3.0
   DOTNET_TFM: 'net10.0'
-  DOTNET_VERSION: '10.0.102'
+  DOTNET_VERSION: '10.0.201'
   APP_PROJECT: './BeatTheBank/BeatTheBank.csproj'
   APP_VERSION: '1.0'
   PACKAGE_NAME: 'org.shiny.beatthebank'
@@ -48,12 +48,13 @@ jobs:
 
     steps:
     - name: '✅ Checkout'
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+        workloads: maui-ios, maui-android
 
     - name: Setup XCode ${{ env.XCODE_VERSION }}
       uses: maxim-lobanov/setup-xcode@v1
@@ -67,9 +68,6 @@ jobs:
         file: ${{ env.APPSETTINGS_JSON_FILE }}
         tokenPattern: ${TOKEN}
         secretsJson: ${{ toJSON(secrets) }}
-        
-    - name: Install Workloads
-      run: dotnet workload install maui-ios maui-android
 
     - name: Download Apple Provisioning Profiles
       uses: Apple-Actions/download-provisioning-profiles@v4

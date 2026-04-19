@@ -14,7 +14,7 @@
         <ApplicationTitle>Beat The Bank</ApplicationTitle>
         <ApplicationId>org.shiny.beatthebank</ApplicationId>
         <ApplicationIdGuid>85C81D9D-257A-496B-96D8-E4922B5D6864</ApplicationIdGuid>
-        <MauiVersion>10.0.50</MauiVersion>
+        <MauiVersion>10.0.51</MauiVersion>
 
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
@@ -67,7 +67,7 @@
         <SentryUploadSources>true</SentryUploadSources>
         <SentryUploadAndroidProguardMapping>true</SentryUploadAndroidProguardMapping>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0D7A3E"/>
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0B2618" BaseSize="128,128"/>
@@ -79,20 +79,20 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6"/>
         <PackageReference Include="Plugin.Maui.Audio" Version="4.0.0"/>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
-        <PackageReference Include="CommunityToolkit.Maui" Version="14.0.1"/>
-        <PackageReference Include="Sentry.Maui" Version="6.2.0" />
-        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="2.0.3" />
-        <PackageReference Include="Shiny.Maui.Shell" Version="3.1.1"/>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
+        <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0"/>
+        <PackageReference Include="Sentry.Maui" Version="6.4.0"/>
+        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="2.0.4"/>
+        <PackageReference Include="Shiny.Maui.Shell" Version="4.2.1"/>
         <PackageReference Include="Shiny.Mediator.Maui" Version="6.2.1"/>
-        <PackageReference Include="Shiny.DocumentDb.Sqlite" Version="3.1.0-beta-0002" />
-        <PackageReference Include="Shiny.DocumentDb.Extensions.DependencyInjection" Version="3.1.0-beta-0002" />
+        <PackageReference Include="Shiny.DocumentDb.Sqlite" Version="3.2.0"/>
+        <PackageReference Include="Shiny.DocumentDb.Extensions.DependencyInjection" Version="3.2.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="appsettings.json" />
-      <EmbeddedResource Include="appsettings.json" />
+        <None Remove="appsettings.json"/>
+        <EmbeddedResource Include="appsettings.json"/>
     </ItemGroup>
 </Project>
