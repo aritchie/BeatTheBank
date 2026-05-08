@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
+using Shiny.Speech;
 using Plugin.Maui.Audio;
 using Shiny.DocumentDb;
 using Shiny.DocumentDb.Sqlite;
@@ -19,7 +19,6 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseMauiCommunityToolkit()
             .AddAudio()
             .UseShinyShell(x => x.AddGeneratedMaps())
 #if !DEBUG            
@@ -48,6 +47,7 @@ public static class MauiProgram
             opts.JsonSerializerOptions = AppJsonContext.Default.Options;
             opts.UseReflectionFallback = false;
         });
+        builder.Services.AddSpeechServices();
         builder.Services.AddGeneratedServices();
 
         return builder.Build();

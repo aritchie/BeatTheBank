@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Shiny.Speech;
 
 namespace BeatTheBank;
 
@@ -9,7 +11,8 @@ public partial class GameViewModel(
     ILogger<GameViewModel> logger,
     INavigator navigator,
     IDialogs dialogs,
-    ISpeechService speech,
+    ISpeechToTextService stt,
+    ITextToSpeechService tts,
     IDeviceDisplay deviceDisplay,
     SoundEffectService sounds,
     IMediator mediator
@@ -81,7 +84,7 @@ public partial class GameViewModel(
         logger.LogDebug($"Rounds: {this.Rounds} - Jackpot: {this.IsJackpot}");
         
         sounds.PlayBackgroundMusic();
-        await speech.SpeakIterations(1000, $"Good Luck {this.Name}.  Let's play!");
+        await this.SpeakIterations(1000, $"Good Luck {this.Name}.  Let's play!");
         await this.NextRound();
     }
     bool CanStartOver() => !String.IsNullOrWhiteSpace(this.Name);
@@ -93,66 +96,86 @@ public partial class GameViewModel(
     const string ENABLE = "Enable Speech Recognizer";
     const string DISABLE = "Disable Speech Recognizer";
     
+    static readonly string[] SpeechKeywords = ["yes", "next", "keep going", "continue", "go", "no", "stop", "cancel", "quit", "try again", "start over", "restart"];
+    CancellationTokenSource? listenCts;
+
     [RelayCommand]
     async Task Speech()
     {
         try
         {
-            if (speech.IsListening)
+            if (stt.IsListening)
             {
-                await speech.StopListening();
+                this.listenCts?.Cancel();
                 this.SpeechText = ENABLE;
                 return;
             }
 
-            var granted = await speech.StartListening(txt =>
-            {
-                switch (txt)
-                {
-                    case "yes":
-                    case "next":
-                    case "keep going":
-                    case "continue":
-                    case "go":
-                        if (this.ContinueCommand.CanExecute(null))
-                            this.ContinueCommand.Execute(null);
-                        break;
-            
-                    case "no":
-                    case "stop":
-                        if (this.StopCommand.CanExecute(null))
-                            this.StopCommand.Execute(null);
-                        break;
-            
-                    case "cancel":
-                    case "quit":
-                        if (this.CancelGameCommand.CanExecute(null))
-                            this.CancelGameCommand.Execute(null);
-                        break;
-            
-                    case "try again":
-                    case "start over":
-                    case "restart":
-                        if (this.StartOverCommand.CanExecute(null))
-                            this.StartOverCommand.Execute(null);
-                        break;
-            
-                    default:
-                        if (txt.StartsWith("my name is"))
-                        {
-                            var newName = txt.Replace("my name is", "").Trim();
-                            if (!String.IsNullOrWhiteSpace(newName))
-                                this.Name = newName;
-                        }
-                        break;
-                }
-            });
-            if (!granted)
+            var access = await stt.RequestAccess();
+            if (access != AccessState.Available)
             {
                 await dialogs.Alert("Speech", "Permission denied");
                 return;
             }
+
+            this.listenCts = new CancellationTokenSource();
             this.SpeechText = DISABLE;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    while (!this.listenCts.Token.IsCancellationRequested)
+                    {
+                        var keyword = await stt.ListenForKeyword(
+                            SpeechKeywords,
+                            new SpeechRecognitionOptions { Culture = CultureInfo.GetCultureInfo("en-US") },
+                            this.listenCts.Token
+                        );
+                        if (String.IsNullOrEmpty(keyword))
+                            continue;
+
+                        var txt = keyword.ToLower();
+                        logger.LogInformation("Speech Result: {txt}", txt);
+
+                        switch (txt)
+                        {
+                            case "yes":
+                            case "next":
+                            case "keep going":
+                            case "continue":
+                            case "go":
+                                if (this.ContinueCommand.CanExecute(null))
+                                    this.ContinueCommand.Execute(null);
+                                break;
+
+                            case "no":
+                            case "stop":
+                                if (this.StopCommand.CanExecute(null))
+                                    this.StopCommand.Execute(null);
+                                break;
+
+                            case "cancel":
+                            case "quit":
+                                if (this.CancelGameCommand.CanExecute(null))
+                                    this.CancelGameCommand.Execute(null);
+                                break;
+
+                            case "try again":
+                            case "start over":
+                            case "restart":
+                                if (this.StartOverCommand.CanExecute(null))
+                                    this.StartOverCommand.Execute(null);
+                                break;
+                        }
+                    }
+                }
+                catch (OperationCanceledException) { }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error during speech recognition");
+                }
+            });
         }
         catch (Exception ex)
         {
@@ -164,7 +187,7 @@ public partial class GameViewModel(
     public void OnDisappearing()
     {
         sounds.StopBackgroundMusic();
-        _ = speech.StopListening();
+        this.listenCts?.Cancel();
     }
 
     
@@ -179,7 +202,7 @@ public partial class GameViewModel(
         // Save after reveal so PotentialAmount (this.Amount) reflects full game
         await this.SaveGameResult();
         
-        await speech.SpeakIterations(
+        await this.SpeakIterations(
             500,
             $"Good Job {this.Name}",
             $"You won {this.Amount} dollars",
@@ -247,10 +270,10 @@ public partial class GameViewModel(
     {
         var index = this.randomizer.Next(0, NextVaultStatements.Length);
         var announce = NextVaultStatements[index];
-        await speech.SpeakIterations(1000, announce);
+        await this.SpeakIterations(1000, announce);
 
         if (await this.TryNextRound())
-            await speech.Speak("Do you wish to continue?");
+            await tts.SpeakAsync("Do you wish to continue?");
     }
 
 
@@ -279,7 +302,7 @@ public partial class GameViewModel(
                     this.Status = PlayState.Lose;
                     await this.SaveGameResult();
                 }
-                await speech.SpeakIterations(500, $"Vault {this.Vault}");
+                await this.SpeakIterations(500, $"Vault {this.Vault}");
                 sounds.PlayAlarm();
             }
         }
@@ -289,7 +312,7 @@ public partial class GameViewModel(
                 this.Status = PlayState.InProgress;
 
             this.Amount += this.GetNextAmount();
-            await speech.SpeakIterations(
+            await this.SpeakIterations(
                 500,
                 $"Vault {this.Vault}",
                 $"{this.Amount} dollars"
@@ -317,6 +340,16 @@ public partial class GameViewModel(
         var index = new Random().Next(0, this.amounts.Count);
         var amount = this.amounts[index];
         return amount;
+    }
+
+
+    async Task SpeakIterations(int pauseBetween, params IEnumerable<string> sentences)
+    {
+        foreach (var s in sentences)
+        {
+            await tts.SpeakAsync(s);
+            await Task.Delay(pauseBetween);
+        }
     }
 
 

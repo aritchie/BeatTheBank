@@ -1,6 +1,7 @@
 using BeatTheBank.Services;
 using Microsoft.Extensions.Logging;
 using Shiny;
+using Shiny.Speech;
 
 namespace BeatTheBank.Tests.ViewModels;
 
@@ -9,7 +10,8 @@ public class GameViewModelTests
     readonly ILogger<GameViewModel> logger;
     readonly INavigator navigator;
     readonly IDialogs dialogs;
-    readonly ISpeechService speech;
+    readonly ISpeechToTextService stt;
+    readonly ITextToSpeechService tts;
     readonly IDeviceDisplay deviceDisplay;
     readonly SoundEffectService sounds;
     readonly IMediator mediator;
@@ -20,12 +22,13 @@ public class GameViewModelTests
         logger = Substitute.For<ILogger<GameViewModel>>();
         navigator = Substitute.For<INavigator>();
         dialogs = Substitute.For<IDialogs>();
-        speech = Substitute.For<ISpeechService>();
+        stt = Substitute.For<ISpeechToTextService>();
+        tts = Substitute.For<ITextToSpeechService>();
         deviceDisplay = Substitute.For<IDeviceDisplay>();
         sounds = Substitute.For<SoundEffectService>();
         mediator = Substitute.For<IMediator>();
 
-        vm = new GameViewModel(logger, navigator, dialogs, speech, deviceDisplay, sounds, mediator);
+        vm = new GameViewModel(logger, navigator, dialogs, stt, tts, deviceDisplay, sounds, mediator);
     }
 
     [Fact]
@@ -73,10 +76,9 @@ public class GameViewModelTests
     }
 
     [Fact]
-    public void OnDisappearing_StopsListening()
+    public void OnDisappearing_DoesNotThrow()
     {
         vm.OnDisappearing();
-        speech.Received(1).StopListening();
     }
 
     [Fact]
