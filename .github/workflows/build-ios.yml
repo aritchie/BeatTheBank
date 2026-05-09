@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XCODE_VERSION: 26.3.0
+  XCODE_VERSION: 26.4.1
   DOTNET_TFM: 'net10.0'
   DOTNET_VERSION: '10.0.201'
   APP_PROJECT: './BeatTheBank/BeatTheBank.csproj'
@@ -44,11 +44,11 @@ jobs:
 
   build:
 #    needs: test
-    runs-on: macos-15
+    runs-on: macos-latest
 
     steps:
     - name: '✅ Checkout'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
