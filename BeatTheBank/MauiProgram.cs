@@ -17,9 +17,19 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
+        builder.Configuration.AddJsonStream(
+            typeof(MauiProgram)
+                .Assembly
+                .GetManifestResourceStream("BeatTheBank.appsettings.json")!
+        );
+        
         builder
             .UseMauiApp<App>()
             .AddAudio()
+            .AddShinyMediator(x => x
+                .AddMediatorRegistry()
+                .UseMaui()
+            )
             .UseShinyShell(x => x.AddGeneratedMaps())
 #if !DEBUG            
             .UseSentry(x => x.Dsn = builder.Configuration["SentryDsn"]!)
@@ -30,15 +40,6 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        builder.Configuration.AddJsonStream(
-            typeof(MauiProgram)
-                .Assembly
-                .GetManifestResourceStream("BeatTheBank.appsettings.json")!
-        );
-        builder.AddShinyMediator(x => x
-            .AddMediatorRegistry()
-            .UseMaui()
-        );
         builder.Services.AddSingleton(DeviceDisplay.Current);
         builder.Services.AddDocumentStore(opts =>
         {

@@ -127,8 +127,9 @@ public partial class GameViewModel(
                 {
                     while (!this.listenCts.Token.IsCancellationRequested)
                     {
-                        var keyword = await stt.ListenForKeyword(
+                        var keyword = await stt.WaitListenForKeywords(
                             SpeechKeywords,
+                            null,
                             new SpeechRecognitionOptions { Culture = CultureInfo.GetCultureInfo("en-US") },
                             this.listenCts.Token
                         );
