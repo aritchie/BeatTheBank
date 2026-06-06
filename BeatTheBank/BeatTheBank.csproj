@@ -2,8 +2,7 @@
 
     <PropertyGroup>
         <BaseTargetFramework>net10.0</BaseTargetFramework>
-        <TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)-ios</TargetFrameworks>
-        <TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)-android</TargetFrameworks>
+        <TargetFrameworks>$(BaseTargetFramework)-ios;$(BaseTargetFramework)-android</TargetFrameworks>
         <TargetFrameworks>$(TargetFrameworks);$(BaseTargetFramework)</TargetFrameworks>
 
         <RootNamespace>BeatTheBank</RootNamespace>
@@ -13,8 +12,7 @@
 
         <ApplicationTitle>Beat The Bank</ApplicationTitle>
         <ApplicationId>org.shiny.beatthebank</ApplicationId>
-        <ApplicationIdGuid>85C81D9D-257A-496B-96D8-E4922B5D6864</ApplicationIdGuid>
-        <MauiVersion>10.0.60</MauiVersion>
+        <MauiVersion>10.0.70</MauiVersion>
 
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
@@ -23,26 +21,24 @@
         <EnableAotAnalyzer>true</EnableAotAnalyzer>
         <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
         <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(Configuration)' == 'Release'">
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <IsAotCompatible>true</IsAotCompatible>
         <PublishAot>true</PublishAot>
+        <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
     </PropertyGroup>
 
-    <ItemGroup>
-        <CustomEntitlements Include="com.apple.developer.carplay-voice-based-conversation"
-                            Type="Boolean"
-                            Value="true"
-                            Visible="false"/>
-    </ItemGroup>
-
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <DefineConstants>$(DefineConstants);PLATFORM;ANDROID</DefineConstants>
+        <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+        <TargetPlatformVersion>36</TargetPlatformVersion>
+        <AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
+    </PropertyGroup>
+    
     <PropertyGroup Condition="'$(TargetFramework)' != '$(BaseTargetFramework)'">
         <OutputType>Exe</OutputType>
         <UseMaui>true</UseMaui>
-        <DefineConstants>$(DefineConstants);PLATFORM</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' == '$(BaseTargetFramework)'">
@@ -62,6 +58,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <CustomEntitlements Include="com.apple.developer.carplay-voice-based-conversation"
+                            Type="Boolean"
+                            Value="true"
+                            Visible="false"/>
+    </ItemGroup>
+    
+    <ItemGroup>
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#0D7A3E"/>
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0B2618" BaseSize="128,128"/>
 
@@ -75,13 +78,14 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8"/>
         <PackageReference Include="Plugin.Maui.Audio" Version="4.0.0"/>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
-        <PackageReference Include="Sentry.Maui" Version="6.5.0"/>
-        <PackageReference Include="Shiny.Speech" Version="2.0.0"/>
-        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="3.0.0"/>
-        <PackageReference Include="Shiny.Maui.Shell" Version="6.0.3"/>
-        <PackageReference Include="Shiny.Mediator.Maui" Version="6.3.2-beta-0002"/>
-        <PackageReference Include="Shiny.DocumentDb.Sqlite" Version="5.0.0"/>
-        <PackageReference Include="Shiny.DocumentDb.Extensions.DependencyInjection" Version="5.0.0"/>
+        <PackageReference Include="Sentry.Maui" Version="6.6.0"/>
+        <PackageReference Include="Shiny.Speech" Version="2.1.0"/>
+        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="4.1.1"/>
+        <PackageReference Include="Shiny.Maui.Shell" Version="6.2.0"/>
+        <PackageReference Include="Shiny.Maui.Shell.UxDiversDialogs" Version="6.2.0"/>
+        <PackageReference Include="Shiny.Mediator.Maui" Version="6.5.0"/>
+        <PackageReference Include="Shiny.DocumentDb.Sqlite" Version="6.1.0"/>
+        <PackageReference Include="Shiny.DocumentDb.Extensions.DependencyInjection" Version="6.1.0"/>
     </ItemGroup>
 
     <ItemGroup>

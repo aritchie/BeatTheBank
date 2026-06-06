@@ -30,7 +30,10 @@ public static class MauiProgram
                 .AddMediatorRegistry()
                 .UseMaui()
             )
-            .UseShinyShell(x => x.AddGeneratedMaps())
+            .UseShinyShell(x => x
+                .AddGeneratedMaps()
+                .UseUxDiversDialogs()
+            )
 #if !DEBUG            
             .UseSentry(x => x.Dsn = builder.Configuration["SentryDsn"]!)
 #endif
