@@ -29,10 +29,10 @@ jobs:
 #    runs-on: ubuntu-latest
 #    steps:
 #    - name: '✅ Checkout'
-#      uses: actions/checkout@v4
+#      uses: actions/checkout@v7
 #
 #    - name: Setup .NET
-#      uses: actions/setup-dotnet@v4
+#      uses: actions/setup-dotnet@v6
 #      with:
 #        dotnet-version: ${{ env.DOTNET_VERSION }}
 #
@@ -48,10 +48,10 @@ jobs:
 
     steps:
     - name: '✅ Checkout'
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         workloads: maui-ios, maui-android
@@ -70,7 +70,7 @@ jobs:
         secretsJson: ${{ toJSON(secrets) }}
 
     - name: Download Apple Provisioning Profiles
-      uses: Apple-Actions/download-provisioning-profiles@v4
+      uses: Apple-Actions/download-provisioning-profiles@v6
       with:
         bundle-id: ${{ env.PACKAGE_NAME }}
         issuer-id: ${{ secrets.APP_STORE_ISSUER_ID }}
@@ -78,7 +78,7 @@ jobs:
         api-private-key: ${{ secrets.APP_STORE_PRIVATE_KEY }}
 
     - name: '🔑 Import iOS Codesign Certificates'
-      uses: apple-actions/import-codesign-certs@v3
+      uses: apple-actions/import-codesign-certs@v7
       with:
         p12-file-base64: ${{ secrets.APP_STORE_CERTIFICATES_FILE_BASE64 }}
         p12-password: ${{ secrets.APP_STORE_CERTIFICATES_PASSWORD }}
@@ -107,7 +107,7 @@ jobs:
           "${{ env.APP_PROJECT }}"
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: artifacts
         path: ./artifacts/*.*
@@ -119,13 +119,13 @@ jobs:
 
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: artifacts
           path: ./artifacts
 
       - name: Upload app to TestFlight
-        uses: Apple-Actions/upload-testflight-build@v3
+        uses: Apple-Actions/upload-testflight-build@v5
         with:
           app-path: './artifacts/app.ipa'
           issuer-id: ${{ secrets.APP_STORE_ISSUER_ID }}
