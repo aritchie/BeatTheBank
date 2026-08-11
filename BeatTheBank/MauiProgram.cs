@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
+using Shiny.Audio;
 using Shiny.Speech;
-using Plugin.Maui.Audio;
 using Shiny.DocumentDb;
 using Shiny.DocumentDb.Sqlite;
 
@@ -25,7 +25,6 @@ public static class MauiProgram
         
         builder
             .UseMauiApp<App>()
-            .AddAudio()
             .AddShinyMediator(x => x
                 .AddMediatorRegistry()
                 .UseMaui()
@@ -51,6 +50,13 @@ public static class MauiProgram
             opts.JsonSerializerOptions = AppJsonContext.Default.Options;
             opts.UseReflectionFallback = false;
         });
+        // Shiny.Audio registers IAudioPlayer as a singleton and a player only holds one
+        // stream at a time - go transient so background music & sound effects can overlap
+#if IOS
+        builder.Services.AddTransient<IAudioPlayer, AppleAudioPlayer>();
+#elif ANDROID
+        builder.Services.AddTransient<IAudioPlayer, AndroidAudioPlayer>();
+#endif
         builder.Services.AddSpeechServices();
         builder.Services.AddGeneratedServices();
 

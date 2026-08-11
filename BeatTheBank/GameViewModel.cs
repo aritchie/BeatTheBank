@@ -18,10 +18,12 @@ public partial class GameViewModel(
     IMediator mediator
 ) : ObservableObject, IPageLifecycleAware
 {
+    // Careful: the recognizer hears our own narration, so nothing we say aloud may contain a
+    // word from SpeechKeywords or the game will trigger its own commands
     static readonly string[] NextVaultStatements = [
         "Alright, let's open it up",
         "Taking a chance and going for it",
-        "Let's see what's in the next vault",
+        "Let's see what's inside this one",
         "Let's do this",
         "Come on big money!"
     ];
@@ -104,12 +106,8 @@ public partial class GameViewModel(
     {
         try
         {
-            if (stt.IsListening)
-            {
-                this.listenCts?.Cancel();
-                this.SpeechText = ENABLE;
+            if (this.StopListening())
                 return;
-            }
 
             var access = await stt.RequestAccess();
             if (access != AccessState.Available)
@@ -118,65 +116,11 @@ public partial class GameViewModel(
                 return;
             }
 
-            this.listenCts = new CancellationTokenSource();
+            var cancelSource = new CancellationTokenSource();
+            this.listenCts = cancelSource;
             this.SpeechText = DISABLE;
 
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    while (!this.listenCts.Token.IsCancellationRequested)
-                    {
-                        var keyword = await stt.WaitListenForKeywords(
-                            SpeechKeywords,
-                            null,
-                            new SpeechRecognitionOptions { Culture = CultureInfo.GetCultureInfo("en-US") },
-                            this.listenCts.Token
-                        );
-                        if (String.IsNullOrEmpty(keyword))
-                            continue;
-
-                        var txt = keyword.ToLower();
-                        logger.LogInformation("Speech Result: {txt}", txt);
-
-                        switch (txt)
-                        {
-                            case "yes":
-                            case "next":
-                            case "keep going":
-                            case "continue":
-                            case "go":
-                                if (this.ContinueCommand.CanExecute(null))
-                                    this.ContinueCommand.Execute(null);
-                                break;
-
-                            case "no":
-                            case "stop":
-                                if (this.StopCommand.CanExecute(null))
-                                    this.StopCommand.Execute(null);
-                                break;
-
-                            case "cancel":
-                            case "quit":
-                                if (this.CancelGameCommand.CanExecute(null))
-                                    this.CancelGameCommand.Execute(null);
-                                break;
-
-                            case "try again":
-                            case "start over":
-                            case "restart":
-                                if (this.StartOverCommand.CanExecute(null))
-                                    this.StartOverCommand.Execute(null);
-                                break;
-                        }
-                    }
-                }
-                catch (OperationCanceledException) { }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Error during speech recognition");
-                }
-            });
+            _ = Task.Run(() => this.ListenForCommands(cancelSource.Token));
         }
         catch (Exception ex)
         {
@@ -185,10 +129,102 @@ public partial class GameViewModel(
         }
     }
 
+
+    bool StopListening()
+    {
+        var cancelSource = Interlocked.Exchange(ref this.listenCts, null);
+        if (cancelSource == null)
+            return false;
+
+        cancelSource.Cancel();
+        this.SpeechText = ENABLE;
+        return true;
+    }
+
+
+    async Task ListenForCommands(CancellationToken cancelToken)
+    {
+        // ListenForKeywords holds one recognition session open for the whole game.  The platform
+        // recognizers re-arm themselves internally, so stopping/starting between commands (which
+        // is what WaitListenForKeywords in a loop does) throws away everything said while the
+        // mic is being rebuilt - which is exactly when the player is answering
+        var options = new SpeechRecognitionOptions
+        {
+            Culture = CultureInfo.GetCultureInfo("en-US"),
+            PreferOnDevice = true
+        };
+
+        while (!cancelToken.IsCancellationRequested)
+        {
+            try
+            {
+                await foreach (var keyword in stt.ListenForKeywords(SpeechKeywords, options, cancelToken))
+                    this.HandleKeyword(keyword);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                // a recognizer error ends the stream - restart it instead of going deaf for
+                // the rest of the game while the button still says we're listening
+                logger.LogError(ex, "Speech recognition failed - restarting");
+            }
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), cancelToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+        }
+    }
+
+
+    void HandleKeyword(string keyword)
+    {
+        var txt = keyword.ToLower();
+        logger.LogInformation("Speech Result: {txt}", txt);
+
+        switch (txt)
+        {
+            case "yes":
+            case "next":
+            case "keep going":
+            case "continue":
+            case "go":
+                if (this.ContinueCommand.CanExecute(null))
+                    this.ContinueCommand.Execute(null);
+                break;
+
+            case "no":
+            case "stop":
+                if (this.StopCommand.CanExecute(null))
+                    this.StopCommand.Execute(null);
+                break;
+
+            case "cancel":
+            case "quit":
+                if (this.CancelGameCommand.CanExecute(null))
+                    this.CancelGameCommand.Execute(null);
+                break;
+
+            case "try again":
+            case "start over":
+            case "restart":
+                if (this.StartOverCommand.CanExecute(null))
+                    this.StartOverCommand.Execute(null);
+                break;
+        }
+    }
+
     public void OnDisappearing()
     {
         sounds.StopBackgroundMusic();
-        this.listenCts?.Cancel();
+        this.StopListening();
     }
 
     
@@ -274,7 +310,7 @@ public partial class GameViewModel(
         await this.SpeakIterations(1000, announce);
 
         if (await this.TryNextRound())
-            await tts.SpeakAsync("Do you wish to continue?");
+            await tts.SpeakAsync("What's your call?");
     }
 
 

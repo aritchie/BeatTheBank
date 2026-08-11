@@ -1,59 +1,96 @@
-﻿using Plugin.Maui.Audio;
+using System.Collections.Concurrent;
+using Shiny.Audio;
 
 namespace BeatTheBank.Services;
 
 
 [Singleton]
-public class SoundEffectService
+public class SoundEffectService(
+    ILogger<SoundEffectService> logger,
+    IAudioPlayer musicPlayer,
+    IAudioPlayer effectsPlayer
+)
 {
-    readonly IAudioManager audioManager = AudioManager.Current;
-    readonly Dictionary<string, IAudioPlayer> sounds = new();
+    const string BackgroundMusicFile = "gamemusic.mp3";
 
-    public void PlayAlarm() => this.Play("alarm.wav");
-    public void PlayJackpot() => this.Play("jackpot.wav");
+    readonly ConcurrentDictionary<string, byte[]> cache = new();
+    CancellationTokenSource? musicCancelSource;
+
+    public virtual void PlayAlarm() => this.Play("alarm.wav");
+    public virtual void PlayJackpot() => this.Play("jackpot.wav");
 
     public virtual void PlayBackgroundMusic()
     {
-        var player = this.GetOrCreatePlayer("gamemusic.mp3");
-        player.Loop = true;
-        player.Volume = 0.25;
-        player.Play();
+        if (this.musicCancelSource != null)
+            return;
+
+        var cancelSource = new CancellationTokenSource();
+        this.musicCancelSource = cancelSource;
+        var cancelToken = cancelSource.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                // IAudioPlayer has no loop flag - replay until we're told to stop
+                while (!cancelToken.IsCancellationRequested)
+                {
+                    var data = await this.GetBytes(BackgroundMusicFile);
+                    if (data == null)
+                        return;
+
+                    using var stream = new MemoryStream(data, false);
+                    await musicPlayer.PlayAsync(stream, cancelToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to play background music");
+            }
+        });
     }
 
     public virtual void StopBackgroundMusic()
-    {
-        if (this.sounds.TryGetValue("gamemusic.mp3", out var player) && player.IsPlaying)
-            player.Stop();
-    }
+        => Interlocked.Exchange(ref this.musicCancelSource, null)?.Cancel();
 
-    void Play(string fileName) => this.GetOrCreatePlayer(fileName).Play();
 
-    IAudioPlayer GetOrCreatePlayer(string fileName)
+    void Play(string fileName) => _ = Task.Run(async () =>
     {
-        if (!this.sounds.ContainsKey(fileName))
+        try
         {
-            var player = this.audioManager.CreatePlayer(this.GetStream(fileName));
-            this.sounds.Add(fileName, player);
+            var data = await this.GetBytes(fileName);
+            if (data == null)
+                return;
+
+            using var stream = new MemoryStream(data, false);
+            await effectsPlayer.PlayAsync(stream);
         }
-        return this.sounds[fileName];
-    }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to play {FileName}", fileName);
+        }
+    });
 
 
-    Stream GetStream(string fileName)
+    async Task<byte[]?> GetBytes(string fileName)
     {
-        #if IOS || ANDROID || MACCATALYST
-        return FileSystem.OpenAppPackageFileAsync(fileName).GetAwaiter().GetResult();
-        // #if IOS
-        //         var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, fileName);
-        //         return File.OpenRead(fullPath);
-        // #elif ANDROID
-        //         var fullPath = Path.Combine("Assets", fileName);
-        //         return Android.App.Application.Context.Assets!.Open(fullPath);
-        // #elif MACCATALYST
-        //         var fullPath = Path.Combine(Foundation.NSBundle.MainBundle.BundlePath, "Contents", "Resources", fileName);
-        //         return File.OpenRead(fullPath);
+        if (this.cache.TryGetValue(fileName, out var cached))
+            return cached;
+
+#if IOS || ANDROID || MACCATALYST
+        // the player consumes the stream, so keep the bytes around for replays
+        await using var stream = await FileSystem.OpenAppPackageFileAsync(fileName);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+
+        var data = ms.ToArray();
+        this.cache[fileName] = data;
+        return data;
 #else
-        return null;  //this.platform.AppContext.Assets!.Open(fileName);
+        return await Task.FromResult<byte[]?>(null);
 #endif
     }
 }

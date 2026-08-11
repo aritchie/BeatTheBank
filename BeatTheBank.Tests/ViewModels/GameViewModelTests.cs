@@ -1,6 +1,7 @@
 using BeatTheBank.Services;
 using Microsoft.Extensions.Logging;
 using Shiny;
+using Shiny.Audio;
 using Shiny.Speech;
 
 namespace BeatTheBank.Tests.ViewModels;
@@ -25,7 +26,11 @@ public class GameViewModelTests
         stt = Substitute.For<ISpeechToTextService>();
         tts = Substitute.For<ITextToSpeechService>();
         deviceDisplay = Substitute.For<IDeviceDisplay>();
-        sounds = Substitute.For<SoundEffectService>();
+        sounds = Substitute.For<SoundEffectService>(
+            Substitute.For<ILogger<SoundEffectService>>(),
+            Substitute.For<IAudioPlayer>(),
+            Substitute.For<IAudioPlayer>()
+        );
         mediator = Substitute.For<IMediator>();
 
         vm = new GameViewModel(logger, navigator, dialogs, stt, tts, deviceDisplay, sounds, mediator);
