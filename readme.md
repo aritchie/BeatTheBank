@@ -1,3 +1,5 @@
+
+
 # Beat The Bank
 
 A fun little speech-to-text/text-to-speech game built with .NET MAUI. My kids love this game on the radio called "Beat the Bank". Basically, you keep asking the announcer to continue. If you get lucky, the amount keeps going up per "vault". If you're really lucky, you win the jackpot, and if you aren't lucky at all - you hit the alarm and get nothing.
@@ -125,7 +127,7 @@ BeatTheBank/
 ├── Services/
 │   ├── GameDatabase.cs         # Document store wrapper for game persistence
 │   └── StatsCalculator.cs      # Shared stats math - DRY and testable
-├── MainViewModel.cs            # Game logic + saves results via mediator
+├── GameViewModel.cs            # Game logic + saves results via mediator
 ├── MainPage.xaml               # The vault-cracking UI
 ├── LeaderboardViewModel.cs     # Loads leaderboard on tab appear
 ├── LeaderboardPage.xaml        # CollectionView of player stat cards
