@@ -12,7 +12,6 @@
 
         <ApplicationTitle>Beat The Bank</ApplicationTitle>
         <ApplicationId>org.shiny.beatthebank</ApplicationId>
-        <MauiVersion>10.0.90</MauiVersion>
 
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
@@ -74,16 +73,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10"/>
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.101"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12"/>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
-        <PackageReference Include="Sentry.Maui" Version="6.8.0"/>
+        <PackageReference Include="Sentry.Maui" Version="6.11.0"/>
         <PackageReference Include="Shiny.Speech" Version="3.0.0-beta-0028"/>
-        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="5.1.5"/>
-        <PackageReference Include="Shiny.Maui.Shell" Version="6.3.2"/>
-        <PackageReference Include="Shiny.Maui.Shell.UxDiversDialogs" Version="6.3.2"/>
+        <PackageReference Include="Shiny.Extensions.MauiHosting" Version="5.2.1"/>
+        <PackageReference Include="Shiny.Maui.Shell" Version="7.0.0"/>
+        <PackageReference Include="Shiny.Maui.Shell.UxDiversDialogs" Version="7.0.0"/>
         <PackageReference Include="Shiny.Mediator.Maui" Version="6.8.0"/>
-        <PackageReference Include="Shiny.DocumentDb.Sqlite" Version="13.1.2"/>
+        <PackageReference Include="Shiny.DocumentDb.Sqlite" Version="13.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
